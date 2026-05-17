@@ -23,13 +23,13 @@ SNAP=$(curl -sS "$SUPA_URL/rest/v1/brain_token_budget?select=agent_name,used_tod
   echo
   echo "| Agent | Used | Budget | % |"
   echo "|-------|-----:|-------:|--:|"
-  echo "$SNAP" | python3 -c '
-import sys, json
-rows = json.load(sys.stdin)
+  TOKEN_SNAP="$SNAP" python3 -c "
+import os, json
+rows = json.loads(os.environ['TOKEN_SNAP'])
 for r in rows:
-    pct = r["used_today"] * 100 / max(r["daily_budget"],1)
-    print(f"| {r[\"agent_name\"]} | {r[\"used_today\"]} | {r[\"daily_budget\"]} | {pct:.1f}% |")
-'
+    pct = r['used_today'] * 100 / max(r['daily_budget'], 1)
+    print(f'| {r[\"agent_name\"]} | {r[\"used_today\"]} | {r[\"daily_budget\"]} | {pct:.1f}% |')
+"
 } > "$REPORT"
 
 # Reset
