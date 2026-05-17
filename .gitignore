@@ -47,3 +47,23 @@ agents/installed/voltagent/
 # Dashboard build artefacts (lives under brain/dashboard/)
 dashboard/.next/
 dashboard/node_modules/
+
+# ──────────────────────────────────────
+# SECRETS — v2.1 LIVING EMPIRE (НИКОГА не commit-вай!)
+# ──────────────────────────────────────
+.env.api-keys
+.env.crypto
+.gmail-token.json
+credentials.json
+secrets/
+BRAIN_*_SECRETS.md
+*.secrets.md
+*-secrets.md
+
+# OAuth tokens
+.oauth-tokens/
+oauth_token.json
+
+# Crypto trading
+crypto/.live-enabled
+crypto/api-keys/
