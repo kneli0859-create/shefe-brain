@@ -1,0 +1,5 @@
+data/ohlcv/
+data/live-feed/
+.live-enabled
+*.pyc
+__pycache__/

@@ -12,7 +12,8 @@ ts() { date -Iseconds; }
 DISK_USE=$(df --output=pcent / | tail -1 | tr -d ' %')
 echo "$(ts) disk=${DISK_USE}%" >> "$LOG"
 if [[ "$DISK_USE" -gt 90 ]]; then
-  /root/brain/scripts/msgbus.sh send system-guardian shefa-simo alert "Disk > 90%" "Disk usage ${DISK_USE}%" high >> "$LOG"
+  /root/brain/scripts/message-bus.sh send system-guardian shefa-simo alert high \
+    "Disk > 90%" "Disk usage ${DISK_USE}%" >> "$LOG"
 fi
 
 # PM2

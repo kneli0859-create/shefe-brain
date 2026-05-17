@@ -7,8 +7,8 @@ ts() { date -Iseconds; }
 echo "[$(ts)] === inter-agent sync ===" >> "$LOG"
 
 # 1. Broadcast sync request via message bus
-/root/brain/scripts/msgbus.sh send shefa-simo all broadcast \
-  "Daily sync" "Report status + outstanding tasks" medium >> "$LOG" 2>&1 || true
+/root/brain/scripts/message-bus.sh broadcast shefa-simo broadcast medium \
+  "Daily sync" "Report status + outstanding tasks" >> "$LOG" 2>&1 || true
 
 # 2. Reap dead agents
 /root/brain/scripts/heartbeat.sh reap 20 >> "$LOG" 2>&1 || true
