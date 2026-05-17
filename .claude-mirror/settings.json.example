@@ -1,0 +1,13 @@
+{
+  "theme": "dark",
+  "enabledPlugins": {
+    "supabase@claude-plugins-official": true
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "/root/.claude/statusline.sh"
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits"
+  }
+}
