@@ -9,24 +9,41 @@ BRAIN_SELFDEPLOY="$BRAIN_DIR/scripts/maintenance/self-deploy.sh"
 
 usage() {
 cat <<'HELP'
-🧠 Brain CLI v2.0
+🧠 Brain CLI v2.1
 
-USAGE
-  brain "idea"          New idea → analysis
-  brain status          Brain status
+CORE
+  brain "idea"          New idea → analysis (Шефа Симо orchestrates)
+  brain status          Brain status snapshot
   brain projects        Active projects
   brain ideas           Idea queue
   brain agents          Agent count
   brain skills          Skills loaded
-  brain memory <query>  Search memory (grep)
-  brain ultrathink "X"  Einstein mode (deep reasoning)
-  brain audit <proj>    Full audit on project
-  brain deploy <proj>   Deploy with checks
-  brain learn "topic"   Deep research
-  brain backup          Backup everything
-  brain upgrade         Pull latest from origin/main
   brain version         Show version
   brain logs            Recent routine logs
+
+V2.1 LIVE EMPIRE
+  brain heartbeat       Live agent health (alive/sleeping/dead)
+  brain tokens          Token usage per agent today
+  brain money           Money dashboard (revenue + tokens + goals)
+  brain opportunities   Top opportunities from money-hunter
+  brain crypto          Crypto module status (paper mode)
+  brain modules         List Brain modules
+  brain agents-talk     Tail message bus
+  brain keys            API keys status (no values shown)
+  brain chat            Open chat with Шефа Симо
+  brain pause-agent <N> Pause one agent (save tokens)
+  brain resume-agent <N> Resume paused agent
+
+DEEP WORK
+  brain ultrathink "X"  Einstein mode
+  brain audit <proj>    Full project audit
+  brain deploy <proj>   Deploy with checks
+  brain learn "topic"   Deep research (10+ sources)
+  brain memory <query>  Search memory (grep + Supabase)
+
+OPS
+  brain backup          Tar + push everything
+  brain upgrade         Pull latest from origin/main
   brain compact         Compact context (save first)
 HELP
 }
@@ -99,6 +116,59 @@ case "$cmd" in
     else
       echo "✅ Already on latest ($LOCAL)"
     fi
+    ;;
+  "heartbeat")
+    bash /root/brain/scripts/heartbeat.sh status 2>/dev/null | head -200
+    ;;
+  "tokens")
+    if [ -x /root/brain/scripts/token-tracker.sh ]; then
+      bash /root/brain/scripts/token-tracker.sh status 2>/dev/null
+    else
+      echo "(token-tracker.sh not installed)"
+    fi
+    ;;
+  "money")
+    cd "$BRAIN_DIR" && claude -p "/money" --max-turns 10 2>/dev/null || echo "(claude CLI unavailable)"
+    ;;
+  "opportunities")
+    cd "$BRAIN_DIR" && claude -p "/opportunities" --max-turns 10 2>/dev/null || echo "(claude CLI unavailable)"
+    ;;
+  "crypto")
+    cd "$BRAIN_DIR" && claude -p "/crypto" --max-turns 10 2>/dev/null || echo "(claude CLI unavailable)"
+    ;;
+  "modules")
+    ls -1 /root/brain/modules/ 2>/dev/null || echo "(no modules dir)"
+    ;;
+  "agents-talk")
+    bash /root/brain/scripts/message-bus.sh tail "${1:-30}" 2>/dev/null
+    ;;
+  "keys")
+    echo "Configured API keys (status only, no values):"
+    if [ -f /root/brain/.env.api-keys ]; then
+      for k in RESEND_API_KEY BRAVE_SEARCH_API_KEY GMAIL_OAUTH_CLIENT_ID TELEGRAM_BOT_TOKEN OPENAI_API_KEY MEXC_API_KEY BINANCE_API_KEY REPLICATE_API_KEY ELEVENLABS_API_KEY RUNWAY_API_KEY; do
+        val=$(grep "^${k}=" /root/brain/.env.api-keys | head -1 | cut -d= -f2-)
+        if [ -n "$val" ] && [ "$val" != "" ]; then
+          echo "  ✅ $k  (set, ${#val} chars)"
+        else
+          echo "  ⚪ $k  (empty)"
+        fi
+      done
+    else
+      echo "❌ /root/brain/.env.api-keys missing"
+    fi
+    ;;
+  "chat")
+    cd "$BRAIN_DIR" && claude -p "/chat" --max-turns 30
+    ;;
+  "pause-agent")
+    a="${1:-}"
+    [ -z "$a" ] && { echo "Usage: brain pause-agent <name>"; exit 1; }
+    cd "$BRAIN_DIR" && claude -p "/pause-agent $a" --max-turns 10
+    ;;
+  "resume-agent")
+    a="${1:-}"
+    [ -z "$a" ] && { echo "Usage: brain resume-agent <name>"; exit 1; }
+    cd "$BRAIN_DIR" && claude -p "/resume-agent $a" --max-turns 10
     ;;
   "version") cat "$BRAIN_VERSION_FILE" 2>/dev/null || echo "(version file missing)" ;;
   "logs")
