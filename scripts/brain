@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# brain CLI v2.0 — shell front-end for /root/brain.
+# Documented in /root/brain/docs/architecture/README.md.
+set -u
+BRAIN_DIR="/root/brain"
+BRAIN_VERSION_FILE="$BRAIN_DIR/VERSION.md"
+BRAIN_BACKUP="$BRAIN_DIR/scripts/maintenance/backup-all.sh"
+BRAIN_SELFDEPLOY="$BRAIN_DIR/scripts/maintenance/self-deploy.sh"
+
+usage() {
+cat <<'HELP'
+🧠 Brain CLI v2.0
+
+USAGE
+  brain "idea"          New idea → analysis
+  brain status          Brain status
+  brain projects        Active projects
+  brain ideas           Idea queue
+  brain agents          Agent count
+  brain skills          Skills loaded
+  brain memory <query>  Search memory (grep)
+  brain ultrathink "X"  Einstein mode (deep reasoning)
+  brain audit <proj>    Full audit on project
+  brain deploy <proj>   Deploy with checks
+  brain learn "topic"   Deep research
+  brain backup          Backup everything
+  brain upgrade         Pull latest from origin/main
+  brain version         Show version
+  brain logs            Recent routine logs
+  brain compact         Compact context (save first)
+HELP
+}
+
+cmd="${1:-}"
+shift 2>/dev/null || true
+
+case "$cmd" in
+  ""|"-h"|"--help") usage ;;
+  "status")
+    /root/.claude/statusline.sh
+    echo
+    echo "--- PM2 ---"
+    pm2 status 2>/dev/null | tail -n +4 | head -8 || true
+    echo "--- Disk ---"
+    df -h "$BRAIN_DIR" | tail -1
+    echo "--- Sites ---"
+    for u in https://app.svd-clean.de https://demo.svd-clean.de https://brain.svd-clean.de; do
+      c=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$u" || echo "000")
+      printf "  %s  %s\n" "$c" "$u"
+    done
+    ;;
+  "projects")
+    if [ -d "$BRAIN_DIR/projects" ]; then ls -1 "$BRAIN_DIR/projects" 2>/dev/null || true; fi
+    ;;
+  "ideas")
+    [ -f "$BRAIN_DIR/memory/ideas-queue.md" ] && cat "$BRAIN_DIR/memory/ideas-queue.md" || echo "(no /root/brain/memory/ideas-queue.md yet)"
+    ;;
+  "agents") echo "$(ls /root/.claude/agents 2>/dev/null | wc -l) agents installed in ~/.claude/agents/" ;;
+  "skills") ls /root/.claude/skills 2>/dev/null || echo "(no skills)" ;;
+  "memory")
+    q="${1:-}"
+    [ -z "$q" ] && { echo "Usage: brain memory <query>"; exit 1; }
+    grep -ri --include='*.md' "$q" "$BRAIN_DIR/memory/" 2>/dev/null | head -30 || echo "(no matches)"
+    ;;
+  "ultrathink")
+    q="$*"
+    [ -z "$q" ] && { echo "Usage: brain ultrathink \"<question>\""; exit 1; }
+    cd "$BRAIN_DIR" && claude -p "/ultrathink $q" --max-turns 30
+    ;;
+  "audit")
+    p="${1:-}"
+    [ -z "$p" ] && { echo "Usage: brain audit <project>"; exit 1; }
+    cd "$BRAIN_DIR" && claude -p "/audit $p" --max-turns 30
+    ;;
+  "deploy")
+    p="${1:-}"
+    [ -z "$p" ] && { echo "Usage: brain deploy <project>"; exit 1; }
+    cd "$BRAIN_DIR" && claude -p "/deploy $p" --max-turns 30
+    ;;
+  "learn")
+    q="$*"
+    [ -z "$q" ] && { echo "Usage: brain learn \"<topic>\""; exit 1; }
+    cd "$BRAIN_DIR" && claude -p "/learn $q" --max-turns 30
+    ;;
+  "backup")
+    [ -x "$BRAIN_BACKUP" ] && bash "$BRAIN_BACKUP" || echo "(backup script not yet installed — see ETAP 18)"
+    ;;
+  "upgrade")
+    cd "$BRAIN_DIR" || exit 1
+    git fetch origin --quiet
+    LOCAL=$(git rev-parse HEAD)
+    REMOTE=$(git rev-parse origin/main)
+    if [ "$LOCAL" != "$REMOTE" ]; then
+      echo "🔄 Upgrading Brain ($LOCAL → $REMOTE)…"
+      git pull --rebase origin main
+      [ -f dashboard/package.json ] && (cd dashboard && pnpm install --no-frozen-lockfile && pnpm build)
+      pm2 restart brain-dashboard 2>/dev/null || true
+      echo "✅ Upgrade complete"
+    else
+      echo "✅ Already on latest ($LOCAL)"
+    fi
+    ;;
+  "version") cat "$BRAIN_VERSION_FILE" 2>/dev/null || echo "(version file missing)" ;;
+  "logs")
+    tail -50 "$BRAIN_DIR/logs/routines/"*.log 2>/dev/null || echo "(no routine logs yet)"
+    ;;
+  "compact")
+    cd "$BRAIN_DIR" && claude -p "/compact"
+    ;;
+  *)
+    IDEA="$cmd $*"
+    [ -z "${IDEA// }" ] && { usage; exit 1; }
+    TS=$(date +%s)
+    PROJECT_ID="proj-$TS"
+    mkdir -p "$BRAIN_DIR/projects/$PROJECT_ID"
+    echo "🧠 Brain v2.0 — analysing…"
+    echo "Project ID: $PROJECT_ID"
+    cd "$BRAIN_DIR"
+    claude -p "Шефе нова идея: '$IDEA'.
+
+Project ID: $PROJECT_ID
+Workspace:  /root/brain/projects/$PROJECT_ID/
+
+Workflow (in parallel where independent):
+1. shefe-validator → brutal go/no-go
+2. If GO →
+   - market-researcher
+   - shefe-architect
+   - shefe-lawyer
+   - shefe-designer
+   - shefe-marketer
+   - shefe-engineer
+3. Synthesise → save to /root/brain/projects/$PROJECT_ID/report.md
+4. Insert into Supabase brain_ideas + brain_projects + brain_agent_log via Supabase MCP
+
+Truth audit before any change. Auto YES allowed in /root.
+End with a single mobile-friendly TL;DR." --max-turns 100
+    echo
+    echo "✅ Report at: /root/brain/projects/$PROJECT_ID/report.md"
+    ;;
+esac
