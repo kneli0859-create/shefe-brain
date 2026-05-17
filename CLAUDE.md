@@ -54,6 +54,12 @@ When a mistake happens:
 3. Commit: `[claude]: rule: <lesson>`
 4. Append to `/root/brain/memory/lessons.md`
 
+### Active rules (2026-05-17 Learning Loop)
+
+- **Server Actions ≠ critical submissions.** Booking, payment, "submit idea", всичко идемпотентно — `POST /api/...` route handlers, не Next.js Server Actions. Server Actions падат при всеки redeploy с `Failed to find Server Action`. Виж `memory/lessons.md` L1.
+- **No timestamped secret backups in repo.** Всеки `.env.*` backup (с/без timestamp) ТРЯБВА да е в `.gitignore`. Покрити patterns: `.env.api-keys.*`, `.env.crypto.*`, `.env.*.backup*`, `*.backup-[0-9]*`. Виж `memory/lessons.md` L2.
+- **CLAUDE.md референциите трябва да съществуват.** Ако този файл сочи към път, пътят трябва да е реален — иначе learning loop се запушва. Виж `memory/lessons.md` L4.
+
 ## Permission Mode
 
 - Default: `acceptEdits`
