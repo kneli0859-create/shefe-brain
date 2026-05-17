@@ -1,0 +1,49 @@
+# Secrets — НИКОГА не commit-вай
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+credentials.json
+.supabase
+.aws
+.config-hash
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build
+.next/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Memory snapshots (могат да са големи)
+memory/snapshots/*.gz
+
+# Backups
+memory/backups/*.tar.gz
+
+# Cache
+.cache/
+.next/cache/
+
+# VoltAgent install snapshot (cloned to agents/installed/voltagent/; not our code)
+agents/installed/voltagent/
+
+# Dashboard build artefacts (lives under brain/dashboard/)
+dashboard/.next/
+dashboard/node_modules/
