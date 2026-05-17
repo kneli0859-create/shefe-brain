@@ -5,6 +5,7 @@ import { MoneyDashboard } from '@/components/v21/MoneyDashboard';
 import { AgentConversations } from '@/components/v21/AgentConversations';
 import { ChatPanel } from '@/components/v21/ChatPanel';
 import { GoalsTracker } from '@/components/v21/GoalsTracker';
+import { morningGreeting, dayNumberSince } from '@/lib/personality';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Brain v2.1 — Living Empire' };
@@ -33,6 +34,22 @@ export default async function LivingPage() {
   const activeCount = heartbeats.filter((h: any) =>
     ['alive', 'working'].includes(h.status),
   ).length;
+  const sleeping = heartbeats.length - activeCount;
+  const supabase = getServiceClient();
+  const topOppsRes = await supabase
+    .from('brain_opportunities')
+    .select('title,score')
+    .order('score', { ascending: false })
+    .limit(3);
+  const topThings = (topOppsRes.data ?? []).map(
+    (o: any) => `${o.title} (${o.score}/10)`,
+  );
+  const greeting = morningGreeting({
+    dayNumber: dayNumberSince(),
+    alive: activeCount,
+    sleeping,
+    topThings,
+  });
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -40,12 +57,9 @@ export default async function LivingPage() {
         <p className="text-xs uppercase tracking-widest text-yellow-400/80">
           Brain v2.1 · Living Empire
         </p>
-        <h1 className="mt-2 text-3xl font-semibold sm:text-4xl">
-          🎩 Добро утро Шефе ❤️
-        </h1>
-        <p className="mt-1 text-sm text-white/60">
-          {activeCount} agents active · {heartbeats.length - activeCount} sleeping
-        </p>
+        <pre className="mx-auto mt-3 max-w-md whitespace-pre-wrap text-left text-sm text-white/90 font-sans">
+{greeting}
+        </pre>
       </header>
 
       <section className="mb-8 flex justify-center">
