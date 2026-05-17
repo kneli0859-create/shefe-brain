@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# pre-commit hook — block secrets + warn on direct main commits.
+set -e
+
+# 1. Secret patterns — generic API keys, passwords, tokens.
+if git diff --cached -U0 | grep -iE "(api[_-]?key|secret|password|token|sk-)[\"']?[ ]*[:=][ ]*[\"'][a-zA-Z0-9_-]{20,}"; then
+  echo "❌ Detected potential secret in staged diff. Aborting commit."
+  echo "   If this is intentional, run: git commit --no-verify"
+  exit 1
+fi
+
+# 2. Common provider key prefixes.
+if git diff --cached | grep -E "(ghp_[A-Za-z0-9]{30,}|sb_(secret|service)_[A-Za-z0-9_]{20,}|sk_(live|test)_[A-Za-z0-9]{20,}|xox[bap]-[A-Za-z0-9-]{20,})"; then
+  echo "❌ Detected provider secret prefix. Aborting commit."
+  exit 1
+fi
+
+# 3. Direct-to-main commit warning (give Шефе 5 s to Ctrl+C).
+BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+if [ "$BRANCH" = "main" ] && [ -z "$BRAIN_ALLOW_MAIN" ]; then
+  echo "⚠️  Direct commit to main. 5 seconds to Ctrl+C…"
+  sleep 5
+fi
+
+exit 0

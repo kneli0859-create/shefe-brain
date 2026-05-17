@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# pre-edit hook — automatic backup of hot paths before edit.
+# Usage: pre-edit <absolute-file-path>
+set -u
+FILE="${1:-}"
+[ -z "$FILE" ] && exit 0
+[ ! -f "$FILE" ] && exit 0
+
+HOT_PATHS=(
+  "/etc/nginx"
+  "/root/.claude"
+  "/root/brain/memory"
+  ".env.local"
+  ".env"
+  "/etc/letsencrypt"
+)
+
+for path in "${HOT_PATHS[@]}"; do
+  if [[ "$FILE" == *"$path"* ]]; then
+    BACKUP_DIR="/root/backups/hot-paths"
+    mkdir -p "$BACKUP_DIR"
+    TS=$(date +%Y%m%d-%H%M%S)
+    BASE=$(basename "$FILE")
+    cp "$FILE" "$BACKUP_DIR/${BASE}.${TS}.backup"
+    echo "[pre-edit] backed up $FILE → $BACKUP_DIR/${BASE}.${TS}.backup"
+    break
+  fi
+done
+exit 0
