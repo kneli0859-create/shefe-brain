@@ -1,106 +1,155 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { MeshDistortMaterial, Float, Sparkles, Environment } from '@react-three/drei';
+import { useMemo, useRef } from 'react';
+import * as THREE from 'three';
 
-/**
- * Lightweight CSS+Canvas brain "pulse" — no Three.js dependency yet.
- * Renders a glowing sphere with orbiting particles. Mobile-throttled to 30 fps.
- *
- * Future v2.2: swap implementation to Three.js sphere shader keeping the same prop API.
- */
+type Mode = 'idle' | 'chat' | 'alert' | 'revenue';
+
 type Props = {
   agentsActive: number;
-  alertMode?: 'idle' | 'chat' | 'alert' | 'revenue';
+  alertMode?: Mode;
   size?: number; // px
 };
 
+const MODE_COLORS: Record<Mode, { core: string; halo: string; glow: string }> = {
+  idle:    { core: '#22D3EE', halo: '#0EA5E9', glow: '#22D3EE' }, // cyan
+  chat:    { core: '#FFD700', halo: '#F59E0B', glow: '#FFD700' }, // gold
+  alert:   { core: '#EF4444', halo: '#DC2626', glow: '#EF4444' }, // red
+  revenue: { core: '#10B981', halo: '#059669', glow: '#10B981' }, // emerald
+};
+
+function Sphere({ mode, intensity }: { mode: Mode; intensity: number }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const colors = MODE_COLORS[mode];
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    meshRef.current.rotation.x = t * 0.15;
+    meshRef.current.rotation.y = t * 0.22;
+    // Subtle scale pulse driven by agent activity
+    const pulse = 1 + Math.sin(t * 1.4) * 0.04 * intensity;
+    meshRef.current.scale.setScalar(1.4 * pulse);
+  });
+
+  return (
+    <Float speed={1.2} rotationIntensity={0.3} floatIntensity={0.8}>
+      <mesh ref={meshRef}>
+        <sphereGeometry args={[1, 128, 128]} />
+        <MeshDistortMaterial
+          color={colors.core}
+          emissive={colors.glow}
+          emissiveIntensity={0.35 + intensity * 0.25}
+          roughness={0.18}
+          metalness={0.75}
+          distort={0.28 + intensity * 0.15}
+          speed={1.4 + intensity * 1.0}
+        />
+      </mesh>
+    </Float>
+  );
+}
+
+function OrbitRing({ color }: { color: string }) {
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (!ref.current) return;
+    ref.current.rotation.z = state.clock.elapsedTime * 0.08;
+  });
+  return (
+    <mesh ref={ref} scale={2.55}>
+      <torusGeometry args={[1, 0.005, 16, 240]} />
+      <meshBasicMaterial color={color} transparent opacity={0.6} />
+    </mesh>
+  );
+}
+
+function AgentParticles({ count, color }: { count: number; color: string }) {
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i += 1) {
+      // Distribute on a sphere shell
+      const r = 2.0 + Math.random() * 1.2;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      arr[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      arr[i * 3 + 2] = r * Math.cos(phi);
+    }
+    return arr;
+  }, [count]);
+
+  const ref = useRef<THREE.Points>(null);
+  useFrame((state) => {
+    if (!ref.current) return;
+    ref.current.rotation.y = state.clock.elapsedTime * 0.04;
+    ref.current.rotation.x = state.clock.elapsedTime * 0.018;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[positions, 3]}
+          count={count}
+        />
+      </bufferGeometry>
+      <pointsMaterial size={0.04} color={color} transparent opacity={0.85} sizeAttenuation />
+    </points>
+  );
+}
+
 export function BrainSphere({ agentsActive, alertMode = 'idle', size = 300 }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
-    ctx.scale(dpr, dpr);
-
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const fps = isMobile ? 30 : 60;
-    const frameDelay = 1000 / fps;
-    let lastFrame = 0;
-
-    const colorMap = {
-      idle: 'rgba(34, 211, 238, 0.4)',     // cyan
-      chat: 'rgba(255, 215, 0, 0.55)',     // gold
-      alert: 'rgba(239, 68, 68, 0.65)',     // red
-      revenue: 'rgba(16, 185, 129, 0.55)',  // emerald
-    };
-    const baseColor = colorMap[alertMode];
-
-    const particleCount = Math.min(Math.max(agentsActive, 4), 32);
-    const particles = Array.from({ length: particleCount }, (_, i) => ({
-      angle: (i / particleCount) * Math.PI * 2,
-      radius: size * 0.42,
-      speed: 0.002 + Math.random() * 0.003,
-    }));
-
-    const draw = (t: number) => {
-      if (t - lastFrame < frameDelay) {
-        rafRef.current = requestAnimationFrame(draw);
-        return;
-      }
-      lastFrame = t;
-      ctx.clearRect(0, 0, size, size);
-
-      const cx = size / 2;
-      const cy = size / 2;
-      const pulse = 1 + Math.sin(t / 600) * 0.05;
-
-      const grad = ctx.createRadialGradient(cx, cy, 8, cx, cy, size * 0.45 * pulse);
-      grad.addColorStop(0, baseColor.replace('0.4', '0.95').replace('0.55', '0.95').replace('0.65', '0.95'));
-      grad.addColorStop(0.6, baseColor);
-      grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cx, cy, size * 0.45 * pulse, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Particles
-      for (const p of particles) {
-        p.angle += p.speed;
-        const x = cx + Math.cos(p.angle) * p.radius;
-        const y = cy + Math.sin(p.angle) * p.radius;
-        ctx.fillStyle = baseColor;
-        ctx.beginPath();
-        ctx.arc(x, y, 2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      rafRef.current = requestAnimationFrame(draw);
-    };
-    rafRef.current = requestAnimationFrame(draw);
-
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [agentsActive, alertMode, size]);
+  // Intensity 0..1 scaled by active agents (capped at 16)
+  const intensity = Math.min(agentsActive / 16, 1);
+  const colors = MODE_COLORS[alertMode];
+  // More agents → more particles, but throttle on mobile (rough heuristic)
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+  const particleCount = Math.min(Math.max(agentsActive * 12, 60), isMobile ? 180 : 480);
+  const dpr: [number, number] = isMobile ? [1, 1.5] : [1, 2];
 
   return (
     <div className="flex flex-col items-center">
-      <canvas
-        ref={canvasRef}
-        className="rounded-full"
+      <div
+        className="relative"
         style={{ width: size, height: size }}
         aria-label="Brain pulse visualization"
-      />
+      >
+        <Canvas
+          dpr={dpr}
+          camera={{ position: [0, 0, 5], fov: 45 }}
+          gl={{ antialias: true, alpha: true }}
+          frameloop={isMobile ? 'demand' : 'always'}
+          style={{ pointerEvents: 'none' }}
+        >
+          <ambientLight intensity={0.5} />
+          <pointLight position={[5, 5, 5]} intensity={1.2} color={colors.core} />
+          <pointLight position={[-4, -2, 3]} intensity={0.6} color={colors.halo} />
+          <Sphere mode={alertMode} intensity={intensity} />
+          <OrbitRing color={colors.halo} />
+          <AgentParticles count={particleCount} color={colors.core} />
+          <Sparkles count={80} scale={5} size={2.0} speed={0.5} color={colors.core} />
+          <Environment preset="city" />
+        </Canvas>
+
+        {/* Soft outer glow via CSS — cheaper than full bloom shader */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-full"
+          style={{
+            background: `radial-gradient(circle, ${colors.glow}26 0%, transparent 65%)`,
+            filter: 'blur(20px)',
+            zIndex: -1,
+          }}
+        />
+      </div>
+
       <div className="mt-3 text-center">
-        <p className="text-xs uppercase tracking-widest text-white/60">Brain pulse</p>
-        <p className="text-sm font-medium text-white/90">
+        <p className="text-xs uppercase tracking-[0.18em] text-white/55">Brain pulse</p>
+        <p className="mt-0.5 text-sm font-medium text-white/90">
           {agentsActive} agents active · mode: {alertMode}
         </p>
       </div>

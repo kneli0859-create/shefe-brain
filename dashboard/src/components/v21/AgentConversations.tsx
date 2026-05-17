@@ -32,8 +32,8 @@ export function AgentConversations({ initial }: { initial: Msg[] }) {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'brain_messages' },
-        (payload) => {
-          const next = payload.new as Msg;
+        (payload: { new: Msg }) => {
+          const next = payload.new;
           setMsgs((prev) => [next, ...prev].slice(0, 50));
         },
       )

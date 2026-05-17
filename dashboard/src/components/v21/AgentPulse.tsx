@@ -35,8 +35,8 @@ export function AgentPulse({ initial }: { initial: Heartbeat[] }) {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'brain_heartbeat' },
-        (payload) => {
-          const next = payload.new as Heartbeat;
+        (payload: { new: Heartbeat }) => {
+          const next = payload.new;
           setRows((prev) => {
             const without = prev.filter((r) => r.agent_name !== next.agent_name);
             return [...without, next].sort((a, b) =>
