@@ -1,0 +1,18 @@
+[Unit]
+Description=Brain v2.1 Telegram Bot (@SimeonOSbot)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/brain/telegram-bot
+EnvironmentFile=-/root/brain/.env.api-keys
+ExecStart=/root/brain/telegram-bot/venv/bin/python3 /root/brain/telegram-bot/bot.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/root/brain/logs/telegram-bot.log
+StandardError=append:/root/brain/logs/telegram-bot-error.log
+
+[Install]
+WantedBy=multi-user.target
