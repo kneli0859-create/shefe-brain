@@ -29,5 +29,8 @@ if [[ -n "$DEAD" && "$DEAD" != "[]" ]]; then
   echo "$(ts) 🚨 DEAD: $DEAD" >> "$LOG"
 fi
 
-# Trim log > 5000 lines
-[[ $(wc -l < "$LOG") -gt 5000 ]] && tail -n 3000 "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
+# Trim log > 5000 lines (don't fail script if log is small)
+if [[ $(wc -l < "$LOG") -gt 5000 ]]; then
+  tail -n 3000 "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
+fi
+exit 0
