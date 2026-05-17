@@ -1,0 +1,13 @@
+[Unit]
+Description=Brain v2.1 — Always-on heartbeat pulse (every 5 min)
+Documentation=https://github.com/kneli0859-create/shefe-brain
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/root/brain/.env.api-keys
+ExecStart=/root/brain/scripts/always-on/heartbeat-loop.sh
+User=root
+Nice=10
+StandardOutput=append:/root/brain/logs/heartbeat-systemd.log
+StandardError=append:/root/brain/logs/heartbeat-systemd.log
