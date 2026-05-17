@@ -79,6 +79,9 @@ logging.basicConfig(
         logging.StreamHandler(),
     ],
 )
+# Silence httpx INFO traffic — it logs full URLs that include the bot token.
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 log = logging.getLogger("brain.telegram")
 
 # Refuse to start if the token is clearly the placeholder one.

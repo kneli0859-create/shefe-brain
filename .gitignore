@@ -52,7 +52,13 @@ dashboard/node_modules/
 # SECRETS — v2.1 LIVING EMPIRE (НИКОГА не commit-вай!)
 # ──────────────────────────────────────
 .env.api-keys
+.env.api-keys.*
 .env.crypto
+.env.crypto.*
+.env.*.backup
+.env.*.backup-*
+.env.*.bak
+*.backup-[0-9]*
 .gmail-token.json
 credentials.json
 secrets/
