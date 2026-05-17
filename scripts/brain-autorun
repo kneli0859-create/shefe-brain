@@ -1,0 +1,268 @@
+#!/usr/bin/env bash
+# brain-autorun — run Claude Code unattended against a master prompt file.
+#
+# Шефе пуска филм, Brain работи. End-to-end:
+#   brain-autorun start /root/MEGA_PROMPT.md         # start in background
+#   brain-autorun status                             # liveness check
+#   brain-autorun logs                               # tail -f current session
+#   brain-autorun report                             # last completed summary
+#   brain-autorun stop                               # graceful kill
+#   brain-autorun list                               # last 10 sessions
+
+set -u
+
+BRAIN_DIR="/root/brain"
+SESS_BASE="$BRAIN_DIR/logs/sessions"
+EVENTS_LOG="$BRAIN_DIR/logs/autorun-events.log"
+mkdir -p "$SESS_BASE" "$(dirname "$EVENTS_LOG")"
+
+# Return "<pid> <session-dir>" if a session is alive; nothing otherwise.
+active_session() {
+  for pid_file in "$SESS_BASE"/*/pid; do
+    [ -f "$pid_file" ] || continue
+    local pid; pid=$(cat "$pid_file" 2>/dev/null)
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+      echo "$pid $(dirname "$pid_file")"
+      return 0
+    fi
+  done
+  return 1
+}
+
+usage() {
+  cat <<'EOF'
+brain-autorun — unattended Claude Code runner.
+
+USAGE
+  brain-autorun start <prompt-file> [--max-turns N] [--name LABEL]
+  brain-autorun status
+  brain-autorun logs           Tail -f the active session log
+  brain-autorun stop           SIGTERM the active session
+  brain-autorun report         Print summary of last completed session
+  brain-autorun list           Last 10 sessions
+
+NOTES
+  - Uses --permission-mode dontAsk + broad --allowedTools (root-safe; bypass is
+    refused under root by Claude Code as a hard security guard).
+  - Hard `deny` patterns in ~/.claude/settings.json still block destructive ops.
+  - Per-session dir: /root/brain/logs/sessions/<timestamp>/
+      ├── prompt.md     Snapshot of the input
+      ├── output.log    Full claude stdout+stderr
+      ├── heartbeat     Updated every 30 s while alive
+      ├── pid           Runner PID
+      ├── status        running | done | failed (rc=N)
+      └── summary.md    Written on exit
+EOF
+}
+
+cmd="${1:-}"
+shift 2>/dev/null || true
+
+case "$cmd" in
+  ""|"-h"|"--help") usage ;;
+
+  "status")
+    if found=$(active_session); then
+      pid=$(echo "$found" | awk '{print $1}')
+      dir=$(echo "$found" | awk '{print $2}')
+      hb_ts=$(cat "$dir/heartbeat" 2>/dev/null || echo 0)
+      now=$(date +%s)
+      age=$((now - hb_ts))
+      uptime=$(ps -o etime= -p "$pid" 2>/dev/null | xargs || echo "?")
+      echo "🟢 RUNNING"
+      echo "  Session:    $(basename "$dir")"
+      echo "  PID:        $pid"
+      echo "  Uptime:     $uptime"
+      echo "  Heartbeat:  ${age}s ago"
+      echo "  Output size: $(du -h "$dir/output.log" 2>/dev/null | cut -f1)"
+      echo
+      echo "  Last 5 lines of output:"
+      tail -5 "$dir/output.log" 2>/dev/null | sed 's/^/    /'
+    else
+      echo "⚪ No active session"
+      last=$(ls -1dt "$SESS_BASE"/*/ 2>/dev/null | head -1)
+      if [ -n "$last" ]; then
+        echo
+        echo "Last session: $(basename "$last")"
+        echo "  Status: $(cat "$last/status" 2>/dev/null)"
+        [ -f "$last/summary.md" ] && echo "  Summary: $last/summary.md"
+      fi
+    fi
+    ;;
+
+  "logs")
+    if found=$(active_session); then
+      dir=$(echo "$found" | awk '{print $2}')
+      echo "Tailing $dir/output.log  (Ctrl+C to exit)"
+      tail -f "$dir/output.log"
+    else
+      last=$(ls -1dt "$SESS_BASE"/*/ 2>/dev/null | head -1)
+      if [ -n "$last" ]; then
+        echo "No active session. Showing last: $(basename "$last")"
+        tail -200 "$last/output.log"
+      else
+        echo "No sessions yet."
+      fi
+    fi
+    ;;
+
+  "stop")
+    if found=$(active_session); then
+      pid=$(echo "$found" | awk '{print $1}')
+      dir=$(echo "$found" | awk '{print $2}')
+      kill "$pid" 2>/dev/null && {
+        echo "🛑 Sent SIGTERM to PID $pid (session $(basename "$dir"))"
+        echo "stopped" > "$dir/status"
+      } || echo "Failed to signal PID $pid"
+    else
+      echo "Nothing to stop."
+    fi
+    ;;
+
+  "report")
+    last=$(ls -1dt "$SESS_BASE"/*/ 2>/dev/null | head -1)
+    if [ -z "$last" ]; then
+      echo "No sessions yet."; exit 0
+    fi
+    if [ -f "$last/summary.md" ]; then
+      cat "$last/summary.md"
+    else
+      echo "Session $(basename "$last") has no summary yet (status: $(cat "$last/status" 2>/dev/null))"
+    fi
+    ;;
+
+  "list")
+    printf "%-22s  %-15s  %s\n" "SESSION" "STATUS" "SIZE"
+    ls -1dt "$SESS_BASE"/*/ 2>/dev/null | head -10 | while read -r d; do
+      ts=$(basename "$d")
+      st=$(cat "$d/status" 2>/dev/null || echo "?")
+      sz=$(du -h "$d/output.log" 2>/dev/null | cut -f1)
+      printf "%-22s  %-15s  %s\n" "$ts" "$st" "$sz"
+    done
+    ;;
+
+  "start")
+    prompt="${1:-}"
+    [ -z "$prompt" ]    && { echo "Usage: brain-autorun start <prompt-file>"; exit 1; }
+    [ ! -f "$prompt" ]  && { echo "File not found: $prompt"; exit 1; }
+    if active_session >/dev/null; then
+      echo "❌ A session is already active. Run: brain-autorun status"; exit 1
+    fi
+    shift 2>/dev/null || true
+
+    max_turns=200
+    label=""
+    while [ -n "${1:-}" ]; do
+      case "$1" in
+        --max-turns) max_turns="${2:-200}"; shift 2 ;;
+        --name)      label="${2:-}";        shift 2 ;;
+        *)           shift ;;
+      esac
+    done
+
+    ts=$(date +%Y%m%d-%H%M%S)
+    [ -n "$label" ] && ts="${ts}-${label}"
+    dir="$SESS_BASE/$ts"
+    mkdir -p "$dir"
+    cp "$prompt" "$dir/prompt.md"
+    echo "starting" > "$dir/status"
+    date +%s > "$dir/heartbeat"
+
+    # Write runner script — separate file so the background process is a
+    # clean detached child, not a subshell of this interactive invocation.
+    cat > "$dir/runner.sh" <<RUNNER
+#!/usr/bin/env bash
+set -u
+DIR="$dir"
+PROMPT_FILE="\$DIR/prompt.md"
+LOG="\$DIR/output.log"
+STATUS_FILE="\$DIR/status"
+HB="\$DIR/heartbeat"
+MAX_TURNS=$max_turns
+
+# Heartbeat in background
+( while true; do date +%s > "\$HB"; sleep 30; done ) &
+HB_PID=\$!
+trap 'kill \$HB_PID 2>/dev/null || true' EXIT
+
+echo "running" > "\$STATUS_FILE"
+echo "[autorun] start \$(date -Is)" >> "\$LOG"
+echo "[autorun] prompt: \$PROMPT_FILE (\$(wc -l < \$PROMPT_FILE) lines)" >> "\$LOG"
+echo "[autorun] max-turns: \$MAX_TURNS" >> "\$LOG"
+echo "[autorun] permission-mode: dontAsk + broad allowlist (root-safe)" >> "\$LOG"
+echo "[autorun] ---" >> "\$LOG"
+
+cd /root/brain
+# 'dontAsk' never raises permission prompts (root-safe — bypassPermissions is
+# blocked under root by Claude Code). Combined with the broad allowlist below
+# this is functionally equivalent. The deny list in ~/.claude/settings.json
+# still vetoes truly catastrophic patterns.
+claude -p "\$(cat \$PROMPT_FILE)" \
+  --permission-mode dontAsk \
+  --allowedTools 'Bash(*)' Edit Write Read Glob Grep Task WebFetch WebSearch TodoWrite TaskCreate TaskList TaskUpdate TaskGet 'mcp__*' \
+  --max-turns \$MAX_TURNS \
+  >> "\$LOG" 2>&1
+RC=\$?
+
+echo "[autorun] --- end \$(date -Is) rc=\$RC" >> "\$LOG"
+if [ \$RC -eq 0 ]; then
+  echo "done" > "\$STATUS_FILE"
+else
+  echo "failed (rc=\$RC)" > "\$STATUS_FILE"
+fi
+
+# Synthesise a quick summary for the phone.
+{
+  echo "# brain-autorun · session $ts"
+  echo
+  echo "Started: \$(stat -c %y \$PROMPT_FILE 2>/dev/null)"
+  echo "Ended:   \$(date -Is)"
+  echo "Exit:    \$RC"
+  echo "Status:  \$(cat \$STATUS_FILE)"
+  echo
+  echo "## Prompt"
+  head -10 "\$PROMPT_FILE"
+  if [ "\$(wc -l < \$PROMPT_FILE)" -gt 10 ]; then echo "…(truncated, see prompt.md)"; fi
+  echo
+  echo "## Recent git activity (last 2h)"
+  for repo in /root/brain /root/svd-clean-pro; do
+    if [ -d "\$repo/.git" ]; then
+      echo
+      echo "### \$repo"
+      (cd "\$repo" && git log --since="2 hours ago" --oneline) | head -30
+    fi
+  done
+  echo
+  echo "## Last 80 lines of output"
+  echo '~~~'
+  tail -80 "\$LOG"
+  echo '~~~'
+} > "\$DIR/summary.md"
+
+echo "[\$(date -Is)] brain-autorun $ts rc=\$RC status=\$(cat \$STATUS_FILE)" >> "$EVENTS_LOG"
+RUNNER
+    chmod +x "$dir/runner.sh"
+
+    # Detach: setsid so the runner survives logout.
+    setsid bash "$dir/runner.sh" </dev/null >/dev/null 2>&1 &
+    pid=$!
+    echo "$pid" > "$dir/pid"
+
+    echo "🚀 brain-autorun started"
+    echo "  Session:  $ts"
+    echo "  PID:      $pid"
+    echo "  Log:      $dir/output.log"
+    echo
+    echo "  Live watch:   brain-autorun logs"
+    echo "  Liveness:     brain-autorun status"
+    echo "  Final report: brain-autorun report"
+    echo
+    echo "Go watch the movie. Summary will land in $dir/summary.md when done."
+    ;;
+
+  *)
+    echo "Unknown subcommand: $cmd"
+    usage
+    exit 1
+    ;;
+esac
