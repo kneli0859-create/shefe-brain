@@ -1,8 +1,8 @@
-# 🧠 Шефе Brain v2.0
+# 🧠 Шефе Brain v2.1 — Living Empire
 
-> Autonomous AI workforce built on Claude Code.
+> Autonomous AI workforce built on Claude Code. Шефа Симо commands. Шефе reaps.
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](VERSION.md)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](VERSION.md)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
