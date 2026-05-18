@@ -466,17 +466,74 @@ async def on_callback(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     assert q
     await q.answer()
     data = q.data or ""
-    handlers = {
+
+    # Direct command mappings
+    direct_handlers = {
         "menu:status": cmd_status,
         "menu:money": cmd_money,
         "menu:agents": cmd_agents,
+        "menu:heartbeat": cmd_heartbeat,
+        "menu:tokens": cmd_tokens,
+        "menu:opportunities": cmd_opportunities,
         "menu:help": cmd_help,
     }
-    if data in handlers:
-        await handlers[data](update, ctx)
+    if data in direct_handlers:
+        # Patch the update so that handlers expecting `update.message` still work
+        # when invoked from a callback query.
+        if not update.message and q.message:
+            update.message = q.message  # type: ignore[attr-defined]
+        await direct_handlers[data](update, ctx)
         return
-    # Fallback for not-yet-wired menu items
-    await q.message.reply_text(f"🧠 _{data}_ — coming soon", parse_mode=ParseMode.MARKDOWN)
+
+    # Inline hints for items that need user input
+    hint_map = {
+        "menu:idea": (
+            "💡 *Изпрати идея*\n\n"
+            "Пиши: `/idea Накратко идеята тук`\n\n"
+            "Например:\n`/idea SaaS за немски клининг фирми с DSGVO check`\n\n"
+            "Brain ще делегира на validator + architect + lawyer + marketer "
+            "и ще ти прати анализ след ~5-15 мин."
+        ),
+        "menu:chat": (
+            "💬 *Conversational mode*\n\n"
+            "Просто пиши какъвто и да е текст — Шефа Симо отговаря "
+            "(като в чат). Slash командите остават достъпни винаги.\n\n"
+            "_Подсказка:_ кратки въпроси = бързи отговори."
+        ),
+        "menu:search": (
+            "🔍 *Search*\n\n"
+            "• `/memory <q>` — търси в brain memory\n"
+            "• `/learn <topic>` — deep research (~5-10 мин)\n"
+            "• `/opportunities` — hot revenue leads"
+        ),
+        "menu:system": (
+            "⚙️ *System*\n\n"
+            "• `/heartbeat` — agents live health\n"
+            "• `/tokens` — token usage per agent\n"
+            "• `/projects` — active projects\n"
+            "• `/audit <project>` — full audit"
+        ),
+        "menu:memory": (
+            "📚 *Memory*\n\n"
+            "Пиши: `/memory търсене`\n\n"
+            "Brain ще претърси `/root/brain/memory/` + Supabase decisions table "
+            "и ще върне топ резултати."
+        ),
+        "menu:deploy": (
+            "🚀 *Deploy*\n\n"
+            "Пиши: `/deploy <project>`\n\n"
+            "Брайн ще пусне build + проверки (lighthouse, lint, secrets scan) "
+            "и ще го качи на VPS."
+        ),
+    }
+    if data in hint_map:
+        target = q.message or (update.effective_chat and update.effective_chat)
+        if q.message:
+            await q.message.reply_text(hint_map[data], parse_mode=ParseMode.MARKDOWN)
+        return
+
+    if q.message:
+        await q.message.reply_text(f"🧠 _{data}_ — not wired yet", parse_mode=ParseMode.MARKDOWN)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -484,8 +541,28 @@ async def on_callback(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+async def on_startup(app: Application) -> None:
+    """Send a heartbeat ping to Шефе so he knows the bot is back online."""
+    boot_msg = (
+        "🧠 *Brain v2.1 online*\n"
+        "@SimeonOSbot готов 🎩\n\n"
+        "_Пиши /start за главното меню или просто пиши и Симо отговаря._"
+    )
+    for uid in ALLOWED_USER_IDS:
+        try:
+            await app.bot.send_message(uid, boot_msg, parse_mode=ParseMode.MARKDOWN)
+            log.info("startup ping sent to %s", uid)
+        except Exception as e:
+            log.warning("startup ping failed for %s: %s", uid, e)
+
+
 def build_app() -> Application:
-    app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+    app = (
+        Application.builder()
+        .token(TELEGRAM_BOT_TOKEN)
+        .post_init(on_startup)
+        .build()
+    )
 
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("status", cmd_status))
