@@ -344,3 +344,65 @@ Plugin captures observations passively from every session.
 - No flattery
 - Truth audit преди големи промени
 - Backup преди risky operations
+
+---
+
+## 📱 TELEGRAM JARVIS MODE v2 (active 2026-05-18)
+
+Шефе работи 100% от Telegram @SimeonOSbot. Bot живее на VPS като `brain-telegram.service`.
+
+### Stack
+
+- **Bot main:** `/root/brain/telegram-bot/bot.py` (Brain v2.1 — DO NOT replace handlers)
+- **Jarvis extensions:** `/root/brain/telegram-bot/jarvis_extensions.py` (this module owns image/video/voice/menu)
+- **Services:**
+  - `services/tts_generator.py` — ElevenLabs Bulgarian TTS → OGG Opus
+  - `services/image_generator.py` — Replicate FLUX 1.1 Pro (~$0.04)
+  - `services/video_generator.py` — Replicate Hailuo 02 (~$0.27/6s)
+- **Voice IN:** `/usr/local/bin/transcribe-bg` → whisper.cpp small @ `/opt/whisper.cpp`
+
+### Flow
+
+Telegram (voice/text) → bot.py → routed to jarvis_extensions for `/image`, `/video`, `/menu`, voice notes, `jarvis:*` callbacks. Everything else falls through to legacy handlers (preserved).
+
+### Callback prefixes (no clash)
+
+- `menu:*` — legacy Brain v2.1 inline menu (preserve as-is)
+- `jarvis:*` — Jarvis v2 (gen_image, gen_video, voice_help, toggle_voice, svd_status, wake_brief, back_to_main)
+
+### Voice OUT — ElevenLabs
+
+When responding to voice notes or `/wake`-style commands:
+
+- ALWAYS send text reply first
+- IF user toggled "🔊 Глас ВКЛ" → also send TTS voice clip (Bulgarian, Adam voice)
+- TTS skipped automatically when reply > 600 chars
+- Default voice: Adam (`pNInz6obpgDQGcFmaJgB`), model `eleven_multilingual_v2`
+
+### Output rules for voice replies
+
+1. **Bulgarian** for conversational replies
+2. **Кратко**: <6 sentences за voice (TTS лимит + cost)
+3. **No code blocks** в voice-mode replies
+4. **Emoji sparingly**
+5. За image/video requests → output ONLY the English prompt (skill-driven)
+
+### Voice transcripts (Whisper)
+
+Може да имат typos ("снмика", "напрви") — интент разпознаване е fuzzy. Ключови думи:
+
+- "снимка" / "картинка" → image flow
+- "видео" / "клип" → video flow
+- иначе → conversational Claude
+
+### Skills (mandatory before generation)
+
+- `ai/flux-prompt-writer` — Bulgarian → English FLUX prompt (image)
+- `ai/video-prompt-writer` — Bulgarian → English video prompt
+
+### Sacred — never break
+
+- НЕ изтривай Brain v2.1 (`/root/brain/`)
+- НЕ замествай existing 18 bot commands — само ADD
+- НЕ пипай `/root/svd-clean-pro/`
+- Backup всеки modified bot файл
