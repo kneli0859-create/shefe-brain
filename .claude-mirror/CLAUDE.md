@@ -18,12 +18,14 @@
 ## Четирите оси на ×3
 
 ### 1. **Options (A/B/C)** — 3 варианта на всяко решение
+
 - A = безопасният (status quo +)
 - B = препоръчителен (balanced, mark "👑 Recommended")
 - C = звярски (high-reward, mark risk explicitly)
 - Винаги завършвай с препоръка + 1 risk flag за нея.
 
 ### 2. **Verification (×3 проверки преди commit/ship)**
+
 - **Truth audit** — какво съществува сега, какво ще се промени, какво остава
 - **Code review** — own diff през `code-reviewer` mindset (logic, security, perf, edge cases)
 - **Tests / smoke** — `test-runner` агент _или_ ръчно curl/lint/typecheck
@@ -31,7 +33,9 @@
 Ако някоя от 3-те fail-ва → **спри**, докладвай, питай Шефе.
 
 ### 3. **Skills stack (3 SKILL.md преди код)**
+
 Преди да напишеш каквото и да е CSS / Three.js / animation / business strategy / SQL / auth:
+
 - Открий **топ 3 релевантни skills** от `/root/.claude/skills/INDEX.md`
 - Прочети ги (Read tool, не само Grep)
 - Цитирай ги изрично в plan-а ("прилагам: design/impact-designer + animation/motion-framer + frontend/nextjs-mastery")
@@ -39,7 +43,9 @@
 Никога 0 skills. Никога 1 skill. Минимум 3 — освен ако задачата изрично не е извън всички 9 категории.
 
 ### 4. **Perspectives (×3 експертни лещи)**
+
 Преди да предложиш решение, провери го през 3 ума:
+
 - 🏛 **Architect** — "Какъв е long-term debt? Сложността оправдана ли е? Какво се случва при 10× scale?"
 - 🎨 **Designer/UX** — "User flow makes sense? Mobile-first? Premium feel? AI slop отсъстващо?"
 - 🛡 **Security/Compliance** — "DSGVO ОК? Secrets safe? Sacred dirs untouched? Sentry-trackable?"
