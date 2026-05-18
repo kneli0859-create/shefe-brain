@@ -1,3 +1,72 @@
+# 🎯 ACTIVE SKILLS LIBRARY — 106 SKILLS READY
+
+**ПРАВИЛО №1:** Преди да започнеш каквато и да е задача, провери `/root/.claude/skills/INDEX.md` за релевантен skill. Чети SKILL.md ПРЕДИ да пишеш код.
+
+## Категории и кога да ги използваш
+
+| Категория | Trigger keywords | Path |
+|---|---|---|
+| `design/` | UI, redesign, premium, glassmorphism, neumorphism, "не е PRO", aesthetics, color, typography | /root/.claude/skills/design/ |
+| `animation/` | scroll, animations, Framer Motion, GSAP, micro-interactions, parallax | /root/.claude/skills/animation/ |
+| `3d/` | Three.js, R3F, WebGL, particles, shaders, 3D | /root/.claude/skills/3d/ |
+| `frontend/` | Next.js, React, Tailwind, shadcn/ui, App Router, RSC | /root/.claude/skills/frontend/ |
+| `business/` | pricing, marketing, copywriting, launch, growth, SaaS | /root/.claude/skills/business/ |
+| `ai/` | MCP server, Claude API, prompt engineering, skill creation | /root/.claude/skills/ai/ |
+| `security/` | secrets, DSGVO, OWASP, auth, compliance | /root/.claude/skills/security/ |
+| `testing/` | Playwright, e2e tests, visual regression, lighthouse | /root/.claude/skills/testing/ |
+| `brain/` (root-level) | Augsburg, Gewerbe, Jobcenter, German business, Симо, mobile-first | /root/.claude/skills/{shefe-*,german-business,...}/ |
+
+## Tier-1 Power Skills (винаги първи приоритет)
+
+- **design/impact-designer** — narrative-driven, emotional, bold typography
+- **design/premium-saas-design** — Linear/Vercel/Apple aesthetic
+- **design/modern-web-design** — 2026 trends (Liquid Glass, bento grid, organic shapes)
+- **design/innovative-ux-designer** — experimental layouts
+- **3d/react-three-fiber** — declarative Three.js
+- **3d/web3d-integration-patterns** — Next.js + 3D performance
+- **3d/lightweight-3d-effects** — Vanta, CSS 3D, minimal WebGL
+- **animation/motion-framer** — Framer Motion gestures, layout
+- **animation/locomotive-scroll** — smooth scroll storytelling
+- **animation/gsap-scrolltrigger** — pinned sections, parallax
+- **frontend/nextjs-mastery** — Next.js App Router, RSC, streaming
+- **ai/mcp-builder** — custom MCP servers
+- **ai/claude-api** — SDK, streaming, prompt caching, tool use
+- **ai/skill-creator** — scaffold нови skills
+- **business/organic-first-campaign** — no-paid-ads growth
+
+## Trigger map (user казва → чети първо)
+
+| User казва | Чети първо |
+|---|---|
+| "редизайн" / "не е PRO" / "premium" | design/impact-designer + design/premium-saas-design |
+| "WOW" / "впечатляващо" | design/impact-designer + animation/motion-framer |
+| "3D не работи" / "particles" | 3d/react-three-fiber + 3d/web3d-integration-patterns |
+| "scroll" / "parallax" | animation/locomotive-scroll + animation/gsap-scrolltrigger |
+| "animations липсват" | animation/motion-framer + animation/animated-component-libraries |
+| "Next.js" / "App Router" | frontend/nextjs-mastery |
+| "MCP server" / "интеграция" | ai/mcp-builder |
+| "нов skill" | ai/skill-creator + ai/writing-skills |
+| "test" / "playwright" | testing/webapp-testing |
+| "launch" / "marketing" | business/organic-first-campaign |
+| "DSGVO" / "Bürgergeld" / "Gewerbe" | german-business (brain) + security/secrets-management |
+| "бавно е" | 3d/web3d-integration-patterns (performance section) |
+
+## NEVER пренебрегвай skills
+
+Преди да напишеш CSS / Three.js / animations / business strategy → винаги чети skill-а първо. Skills съдържат research, patterns, anti-patterns които ще ти спестят бъгове.
+
+## Skills auto-discovery командa
+
+В нова сесия, изпълни:
+
+```bash
+cat /root/.claude/skills/INDEX.md
+```
+
+за да видиш всички 106 skills с trigger keywords.
+
+---
+
 # 🧠 ШЕФЕ GLOBAL BRAIN — Constitution
 
 > Read AUTOMATICALLY at every Claude Code session start.
