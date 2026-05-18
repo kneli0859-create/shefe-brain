@@ -45,9 +45,6 @@ from telegram.ext import (
     filters,
 )
 
-# Jarvis v2 — voice IN/OUT + image/video. See jarvis_extensions.py.
-from jarvis_extensions import register as register_jarvis
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Config + secret loader
 # ──────────────────────────────────────────────────────────────────────────────
@@ -580,9 +577,6 @@ def build_app() -> Application:
     # Passthrough commands
     for c in ("projects", "deploy", "audit", "ultrathink", "learn", "memory", "crypto", "chat", "cancel"):
         app.add_handler(CommandHandler(c, cmd_passthrough))
-
-    # Jarvis v2 — must run BEFORE legacy CallbackQueryHandler so jarvis:* is routed first.
-    register_jarvis(app)
 
     app.add_handler(CallbackQueryHandler(on_callback))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
