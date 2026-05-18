@@ -65,3 +65,51 @@
 **Fix applied:** `logging.getLogger('httpx').setLevel(WARNING)` + `httpcore` същото. Log редактиран със `sed`. `chmod 600` на log файла. Token rotation **не** нужна (local-only leak), но е "сheflar" решение — на следваща инкарнация може да е по-зле.
 
 **Rule:** Всеки нов bot / 3rd-party client изисква **explicit** logging policy: преди `app.run()`, set `WARNING` за известни verbose libraries (`httpx`, `httpcore`, `urllib3`, `aiohttp.access`). Log файлове с потенциални secrets → `chmod 600` от installer-а, не post-hoc.
+
+---
+
+## 2026-05-18 — End-of-day Learning Loop
+
+### L6. Declared rules rot within 24h without enforcement (yesterday's L1 + L3 recurred)
+
+**What:** Yesterday's L1 (Server Actions → route handlers за критични submissions) и L3 (error-funnel routine към `/root/brain/logs/errors/`) бяха декларирани като правила, но **нито едното не беше приложено в 24h**. Резултат, видим в логовете днес:
+  - `Server Action "x"` errors recurring в `brain-dashboard-error.log` (17:17, 17:25, 17:29, 19:28, 20:16, 22:04), `svd-clean-app-error.log` (22:11), `svd-clean-demo-error.log` (17:18) — точно същият клас грешки като 2026-05-17 20:42–23:07.
+  - `/root/brain/logs/errors/` все още празна — 22 агента, 6 cron routines, 0 централизирани error events. Днешният EOD loop пак чете директно от `pm2 logs` и `journalctl` както вчерашния.
+
+**Why it matters:** Learning Loop-ът открива един и същ проблем всеки ден. Brain auto-update commit-ва на всеки 10 минути и нищо от тези commit-и не адресира декларираните rules — само наблюдава ги отново. Това е classic "issue logged, never closed" debt: правилата стават "wishlist", не constitution. Доверието в самата система пада.
+
+**Rule:** Всяко `**Rule:**` в `lessons.md` ТРЯБВА да доведе до едно от трите в рамките на 24h:
+  - **(a) Code change** който enforce-ва (handler, validator, guard, gitignore line, hook).
+  - **(b) Routine / hook** който audit-ва (cron grep, lint rule, scheduled check).
+  - **(c) Explicit `**TODO by YYYY-MM-DD:**`** marker — с дата кога ще се затвори, не отворен край.
+
+Без (a/b/c), правилото е debt. На следващия EOD loop, recurring violations се escalate-ват до `Шефе` с тагване "REGRESSION FROM Lx" (както сега L1 + L3).
+
+**Concrete TODOs from this lesson:**
+  - **TODO by 2026-05-19:** Migrate brain-dashboard `submit-idea` form to `POST /api/ideas` route handler. (closes L1 for brain-dashboard)
+  - **TODO by 2026-05-20:** `error-funnel` routine `/root/brain/routines/scheduled/error-funnel.sh` — `pm2 jlist` + `journalctl --since=1h` → `/root/brain/logs/errors/$(date +%F).jsonl`. (closes L3)
+  - Audit script `/root/brain/scripts/rules-debt-check.sh` — grep `**Rule:**` в `lessons.md`, провери че има (a)/(b)/(c). Add to EOD loop preflight.
+
+---
+
+### L7. Sacred dir hygiene — планировъчни бележки засипват `/root/svd-clean-pro/`
+
+**What:** `cd /root/svd-clean-pro && git status` показва 2 untracked файла, които нямат място там:
+  - `BRAIN V2 FINAL.md`
+  - `BRAIN v2_1 LIVING EMPIRE.md`
+
+Това са планировъчни / brainstorm бележки за Brain ecosystem-а, не файлове на SaaS-а. Sacred dir-ът беше използван като scratchpad — вероятно при mobile workflow (iPhone Termius, бързо запазване в "текущата папка"), без `cd /root/brain/docs/` първо.
+
+**Why it matters:** `/root/svd-clean-pro/` е sacred (Constitution Hot Path). Всеки случаен файл там:
+  - Може да бъде commit-нат с `git add -A` (типичен mobile shortcut).
+  - Замъглява "What changed?" сигнала за production app-а.
+  - Прави следващия audit / diff по-шумен — фалшиви позитиви на "untracked files" в production checks.
+
+`BRAIN` като namespace **никога** не бива да е в свд-clean-pro. Това е cross-project leak.
+
+**Rule:**
+  - **(a) Pre-commit guard в `/root/svd-clean-pro/`:** Reject staging на файлове, които match `BRAIN*` / `Brain*` / `*Brain*` patterns. Те принадлежат на `/root/brain/docs/` или `/root/brain/memory/notes/`.
+  - **(b) iPhone workflow lesson:** Когато се пише `nano <name>.md` от Termius — задължително `pwd` първо. Map: бележки → `~/brain/docs/notes/`; код → `~/<project>/`.
+  - **TODO by 2026-05-19:** Преместване на двата untracked файла → `/root/brain/docs/notes/2026-05-18-brain-v2-planning/` (с rename за нормални имена без spaces). След това `gitignore` за sacred dirs да rejecт-ва `*BRAIN*.md` като защита.
+
+---
