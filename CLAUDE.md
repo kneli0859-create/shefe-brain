@@ -60,6 +60,11 @@ When a mistake happens:
 - **No timestamped secret backups in repo.** Всеки `.env.*` backup (с/без timestamp) ТРЯБВА да е в `.gitignore`. Покрити patterns: `.env.api-keys.*`, `.env.crypto.*`, `.env.*.backup*`, `*.backup-[0-9]*`. Виж `memory/lessons.md` L2.
 - **CLAUDE.md референциите трябва да съществуват.** Ако този файл сочи към път, пътят трябва да е реален — иначе learning loop се запушва. Виж `memory/lessons.md` L4.
 
+### Active rules (2026-05-18 Learning Loop)
+
+- **Rules-debt → 24h enforcement window.** Всяко `**Rule:**` в `memory/lessons.md` ТРЯБВА в рамките на 24h да доведе до (a) code change който enforce-ва, (b) routine/hook който audit-ва, или (c) explicit `**TODO by YYYY-MM-DD:**` marker. Без едно от тези три → правилото е debt и се escalate-ва като `REGRESSION FROM Lx` на следващия EOD loop. Виж `memory/lessons.md` L6.
+- **Sacred dirs не са scratchpad.** `/root/svd-clean-pro/` и `/root/brain/<app-dirs>/` не приемат cross-project planning notes (`BRAIN*.md` файлове там → reject). Бележки → `/root/brain/docs/notes/`. От iPhone Termius: `pwd` преди `nano` винаги. Виж `memory/lessons.md` L7.
+
 ## Permission Mode
 
 - Default: `acceptEdits`
