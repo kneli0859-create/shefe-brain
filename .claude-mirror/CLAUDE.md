@@ -406,3 +406,103 @@ When responding to voice notes or `/wake`-style commands:
 - НЕ замествай existing 18 bot commands — само ADD
 - НЕ пипай `/root/svd-clean-pro/`
 - Backup всеки modified bot файл
+
+---
+
+## 🚀 TIER 4 ULTIMATE MODE (active 2026-05-18)
+
+### Sub-Agents (+ Tier 4)
+
+- `app-builder` (Opus) — autonomous full-stack: plan → scaffold → implement → test → deploy
+- `skill-suggester` (Sonnet) — weekly pattern detector, drafts new skills
+
+### Slash Commands (+ Tier 4)
+
+NEW (preserved alongside legacy /start /audit /ship /research /wake /idea /quick /redesign /launch):
+
+- `/build [description]` — autonomous app builder
+- `/imagine [image|figma URL]` — image-to-code
+- `/clone-voice` — clone Šefe's voice (ElevenLabs IVC)
+- `/voice [text]` — generate Bulgarian voice clip
+- `/screenshot [URL]` — Playwright full-page screenshot
+- `/dna [path]` — codebase architecture/security/perf analysis (4 parallel agents)
+- `/migrate [description]` — safe code migration (commit-per-file + auto-rollback)
+- `/refactor [target]` — smart refactor (skills + code-reviewer + design-auditor)
+- `/cost [scenario]` — usage cost calculator
+- `/pr-review [PR]` — multi-perspective PR review
+- `/issue [description]` — auto-create GitHub issue
+- `/remember [text]` — add to RAG (Qdrant + nomic-embed-text)
+- `/recall [query]` — semantic RAG search
+- `/screenshot [URL]` — screenshot via Playwright MCP
+
+### Skills (+ Tier 4)
+
+- `ai/auto-debug` — 3-attempt systematic fix workflow
+- `ai/image-to-code` — screenshot/Figma → React/Next.js
+- `ai/browser-automation` — Playwright MCP recipes
+- `ai/ollama-fallback` — local LLM (llama3.2:3b @ :11434)
+- `ai/media-production` — logo/social/ad/storyboard pipelines
+- `ai/voice-commands` — fuzzy BG intent parser for Whisper transcripts
+- `frontend/cloudflare-workers` — edge deploy patterns
+
+### MCP Servers (+ Tier 4)
+
+Added: `sequential-thinking`, `memory-graph`, `everything`, `github`, `cloudflare`, `vercel`, `stripe`. Total now ~22 servers (some need browser OAuth on first call).
+
+### Plugin Marketplaces
+
+5 marketplaces registered: anthropic-agent-skills, superpowers-marketplace, daymade-skills, jamie-bitflight-skills, claude-code-plugins-plus. Plugins installed: `document-skills`, `superpowers`.
+
+### Local services (Docker)
+
+- `qdrant` @ 127.0.0.1:6333 — vector DB for RAG
+- `n8n` @ 127.0.0.1:5678 — workflow automation
+- `ollama` @ 127.0.0.1:11434 — local LLM + embeddings
+
+### Voice Cloning
+
+Script ready: `/root/.claude/scripts/clone-voice.py`. Awaits sample at `/root/voice-samples/shefe-sample.ogg`. On run, writes `SHEFE_VOICE_ID` to `.env.api-keys`, picked up automatically by Jarvis TTS.
+
+### Auto behaviours (cron)
+
+- `0 22 * * *` → `/root/.claude/scripts/daily-report.sh` (Telegram usage summary)
+- `0 3 * * *` → `/root/.claude/scripts/daily-backup.sh` (encrypted backup; pushes if `/root/backups` is a git repo)
+
+### Project workflow helpers
+
+- `init-project <name>` → scaffolds `/root/projects/<name>` + project-local `.claude/CLAUDE.md`
+- `proj <name>` → shows path + `cd` hint
+- `new-repo <name>` → `gh repo create` + initial commit
+- `setup-cicd` (run in repo) → writes GitHub Actions test + deploy workflows
+- `install-pre-commit` (run in repo) → drops a lint/typecheck/test pre-commit hook
+- `usage [image|video|tts <chars>|message|show]` → tracks Replicate/ElevenLabs spend
+
+### RAG memory
+
+```bash
+/root/.claude/scripts/rag-add.py "fact to remember"
+/root/.claude/scripts/rag-search.py "query"
+```
+
+Or use `/remember` and `/recall` slash commands.
+
+### Triple-Reasoning ×3 (always on)
+
+For non-trivial work, output:
+
+```
+🎯 PLAN ×3
+─ Skills consulted: skill1 + skill2 + skill3
+─ Perspectives: 🏛 architect · 🎨 designer · 🛡 security
+─ Options: A (safe) / B 👑 (recommended) / C (звярски)
+─ Verification: truth audit ✓ · review ✓ · tests ✓
+─ Препоръка: B. Risk flag: X.
+```
+
+### Sacred — Tier 4
+
+- ❌ `/root/brain/` — read `.env.api-keys` only, do NOT modify other files
+- ❌ `/root/svd-clean-pro/` — completely untouched
+- ✅ ADD only — never delete existing skills/agents/commands
+- ✅ Backup before destructive ops
+- ✅ Auto-debug 3 attempts → escalate, never silently skip
