@@ -1,8 +1,25 @@
 ---
-description: Submit new idea for brain analysis
+description: Validate and develop a new idea
+argument-hint: <idea description>
 ---
-Call `shefe-validator` first (brutal go/no-go).
-If GO → orchestrate `shefe-architect` with specialists in parallel via the Task tool.
-Save report to: `/root/brain/projects/[proj-<timestamp>]/report.md`.
-Insert rows into Supabase `brain_ideas` + `brain_projects` (use service role via MCP).
-End with a one-paragraph mobile-friendly summary for Шефе.
+
+Шефе има нова идея: $ARGUMENTS
+
+## Use shefe-validator agent first
+
+Parallel evaluation (one Task message, multiple sub-agents if useful):
+
+- Market feasibility (Augsburg / DACH context)
+- Technical complexity
+- Revenue potential (€/month estimate)
+- Time to MVP (days)
+- Required resources (Шефе solo / team / capital)
+
+## Output (mobile-friendly markdown)
+
+- 🟢 / 🟡 / 🔴 — recommendation
+- **3 next steps** if 🟢 (concrete, &lt; 1 day each)
+- **Risks** (1-3 with mitigation)
+- **Similar prior art** (1-3 examples; mark "alive" / "dead")
+
+Be brutal honest. Шефе does not need flattery.

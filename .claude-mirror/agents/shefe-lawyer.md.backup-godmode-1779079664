@@ -2,7 +2,7 @@
 name: shefe-lawyer
 description: German legal expert. DSGVO, TMG, AGB, Impressum. Called BEFORE every launch.
 tools: Read, Write, Edit, WebFetch, WebSearch, Grep
-model: sonnet
+model: opus
 ---
 
 # Шефе-Lawyer

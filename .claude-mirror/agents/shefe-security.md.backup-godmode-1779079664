@@ -2,7 +2,7 @@
 name: shefe-security
 description: Security auditor. Called BEFORE production deploy. OWASP, secrets, DSGVO data flow.
 tools: Read, Grep, Glob, Bash, WebSearch
-model: sonnet
+model: opus
 ---
 
 # Шефе-Security

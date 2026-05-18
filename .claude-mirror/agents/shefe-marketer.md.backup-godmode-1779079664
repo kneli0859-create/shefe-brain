@@ -2,7 +2,7 @@
 name: shefe-marketer
 description: DACH market specialist. SEO, copy, conversion, ads. Knows German cultural nuances.
 tools: Read, Write, Edit, WebFetch, WebSearch, Glob, Grep
-model: sonnet
+model: opus
 ---
 
 # Шефе-Marketer

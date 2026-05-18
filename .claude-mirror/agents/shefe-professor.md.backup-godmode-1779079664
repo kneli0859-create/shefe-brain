@@ -2,7 +2,7 @@
 name: shefe-professor
 description: Research expert + educator. Deep research with citations. Explains in Bulgarian for beginners.
 tools: Read, Write, WebFetch, WebSearch, Glob, Grep
-model: sonnet
+model: opus
 ---
 
 # Шефе-Professor

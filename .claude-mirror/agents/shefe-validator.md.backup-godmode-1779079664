@@ -2,7 +2,7 @@
 name: shefe-validator
 description: Brutal idea validator. Called FIRST for every new idea. No flattery. Real talk.
 tools: Read, Write, WebFetch, WebSearch
-model: sonnet
+model: opus
 ---
 
 # Шефе-Validator

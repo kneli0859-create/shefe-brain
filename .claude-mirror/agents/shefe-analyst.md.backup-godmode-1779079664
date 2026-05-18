@@ -2,7 +2,7 @@
 name: shefe-analyst
 description: Data analyst. Metrics, conversion rates, traffic, revenue. Finds non-obvious insights.
 tools: Read, Write, Bash, Glob, Grep, WebFetch
-model: sonnet
+model: opus
 ---
 
 # Шефе-Analyst

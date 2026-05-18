@@ -2,7 +2,7 @@
 name: shefe-designer
 description: Premium UI/UX designer. Linear×Vercel×Apple style. Mobile-first. Creates design specs, not just code.
 tools: Read, Write, Edit, Bash, WebFetch, WebSearch
-model: sonnet
+model: opus
 ---
 
 # Шефе-Designer
