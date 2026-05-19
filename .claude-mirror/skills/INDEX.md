@@ -140,9 +140,43 @@ Skills auto-load when Claude detects matching keywords in a request.
 
 ---
 
+---
+
+## 💹 external/ — Trading Platform (added 2026-05-19)
+
+Path: `/root/.claude/skills/external/` · Provenance: see `external/PROVENANCE.md`
+
+### `trading/` (12 skills, source: agiprolabs)
+
+- `risk-management`, `position-sizing`, `kelly-criterion`, `exit-strategies`
+- `regime-detection`, `sentiment-analysis`
+- `ohlcv-processing`, `ta-lib`, `pandas-ta`, `walk-forward-validation`
+- `portfolio-analytics`, `slippage-modeling`
+
+### `memory/` (4 skills + 2 personas, source: tradermonty)
+
+- `trader-memory-core` — THESIS lifecycle, Qdrant-friendly
+- `signal-postmortem` — closes the learning loop
+- `scenario-analyzer` — 2-agent debate pattern
+- `macro-regime-detector`
+- `agents/scenario-analyst.md`, `agents/strategy-reviewer.md`
+
+### `safety/` (vendored, pinned SHA `f14f339...`, source: jmanhype/multi-agent-system)
+
+- `hooks/` — `circuit_breaker.sh`, `kill_switch.sh`, `guard_approve.sh`, `verify_gate.sh`, `pre_trade.sh`, `post_trade.sh`
+- `workflows/` — `crypto-trader.md`, `quant-trading-workflow.md`
+- `agents/` — `risk-manager.md`, `trader-orchestrator.md`, `health-monitor.md`, `features-extractor.md`, `strategy-rsi-ema.md`, `research-orchestrator.md`
+
+### `reference/` (read-only architecture inspiration)
+
+- `tradingagents/` — Bull/Bear debate + 3-personality risk debate (aggressive/conservative/neutral). Source: TauricResearch/TradingAgents.
+- `roman-rr/` — SIGNAL-FORMAT.md only. Parent SKILL.md REJECTED (prompt-injection).
+
+---
+
 ## 📊 Summary
 
-- **Total skills:** 106
+- **Total skills:** 128 (+22 trading, 2026-05-19)
 - **Brain (custom):** 11
 - **design:** 16
 - **animation:** 10
@@ -152,8 +186,11 @@ Skills auto-load when Claude detects matching keywords in a request.
 - **ai:** 16
 - **security:** 8
 - **testing:** 10
+- **external/trading:** 12 ⭐ NEW
+- **external/memory:** 4 ⭐ NEW
+- **external/safety:** 6 hooks + 2 workflows + 6 agents ⭐ NEW
 
-## ℹ️  How skills activate
+## ℹ️ How skills activate
 
 Claude Code scans `description` fields when interpreting a request.
 Type `/<skill-name>` to invoke explicitly, or just describe the task —
