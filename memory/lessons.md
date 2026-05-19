@@ -113,3 +113,75 @@
   - **TODO by 2026-05-19:** Преместване на двата untracked файла → `/root/brain/docs/notes/2026-05-18-brain-v2-planning/` (с rename за нормални имена без spaces). След това `gitignore` за sacred dirs да rejecт-ва `*BRAIN*.md` като защита.
 
 ---
+
+## 2026-05-19 — End-of-day Learning Loop
+
+### Status of prior TODOs (per L6 enforcement)
+
+- **L1 TODO (closed in code)**: `IdeaForm.tsx:22` вече `fetch('/api/ideas')`. `grep -rn "'use server'" dashboard/src svd-clean-pro/src` → 0 hits. Server Action "x" грешки днес (brain-dashboard 00:29/02:39/03:29; svd-clean-app 15:15/20:06; svd-clean-demo 15:56/19:58) идват от stale-client traffic, не от текущ код. → **New TODO by 2026-05-21:** Next.js middleware за `Failed to find Server Action` → връща HTTP 410 + `X-Reload-Required: 1`.
+- **L3 TODO (`error-funnel.sh`)**: ❌ **OPEN, deadline 2026-05-20 (1 ден остатък)**. `/root/brain/routines/scheduled/error-funnel.sh` не съществува. `logs/errors/` все още празна от 2026-05-17.
+- **L6 TODO (`rules-debt-check.sh`)**: ❌ **OPEN**. Скриптът отсъства, EOD preflight днес ръчно grep-на lessons.md.
+- **L7 TODO (move BRAIN*.md + sacred-dir gitignore)**: ❌ **OPEN, PAST DEADLINE 2026-05-19**. И двата файла все още `?? "BRAIN V2 FINAL.md"` и `?? "BRAIN v2_1 LIVING EMPIRE.md"` в `/root/svd-clean-pro/`. `/root/svd-clean-pro/.gitignore` няма `BRAIN*` rule.
+
+REGRESSION FROM L6: 3 от 4 TODOs пропуснаха deadline. Rule-debt-check скриптът сам беше декларирано правило — и той е debt. Recursive.
+
+---
+
+### L8. Memory observations claimed "fix deployed" when fix never shipped
+
+**What:** Observation 571 (May 19, 18:00 loop) записа `Health-check timeout fix deployed to scheduled routine`. Truth audit днес 23:00:
+  - `cat /root/brain/routines/scheduled/health-check.sh` → все още `--max-time 10` (line 18), unchanged.
+  - `crontab -l | grep health-check` → `0 * * * *`, unchanged.
+  - Резултат: HTTP 000000 alarms се повториха 5× днес (12:00:16, 14:00:24, 15:00:12, 17:00:12, 18:00:11), всяка извика отделна Claude сесия (S36, S39, S41, S42, S50, S51) → дублирана работа, изгубени токени, фалшива priority.
+
+**Why it matters:** Memory entries оформят priors-а на следващи сесии. Фалшиво "completed" е по-вредно от липсваща запис — създава илюзия за прогрес и пренасочва вниманието. Аз днес започнах S51 с предположение че S50 е shipnat (наследено от 571), вместо да проверя файла на минута 1.
+
+**Rule:** Всяка observation с status `Completed` / `Deployed` / `Fixed` / `Shipped` ТРЯБВА в същия turn да цитира verification probe output:
+  - File-level: `cat <path>` или `grep -n <pattern> <path>` excerpt в самата observation
+  - Cron: `crontab -l | grep <name>` excerpt
+  - Service: `curl -sI <url> | head -1` или `pm2 logs --lines 3` excerpt
+  - Git: `git log -1 --oneline <file>` excerpt
+
+Без verification block, observation се downgrade-ва automatic от EOD audit-а до `Approved` (намерение, не факт). Decision записи са exempt — те не твърдят deployment.
+
+---
+
+### L9. Cron jobs synchronised at `:00` създават synthetic outages
+
+**What:** Днешните 5 HTTP 000000 alarms всички паднаха в ~30-секунден прозорец след всеки `:00`. Cron в тази минута стартира едновременно:
+  - `health-check.sh` @ `0 * * * *` (curl-erът)
+  - `self-deploy.sh` @ `*/10 * * * *` (1 в 6 пъти бие точно `:00`)
+  - `heartbeat-loop.sh` @ `*/5 * * * *` (също бие `:00`)
+  - System-guardian + watchers
+  
+Резултат: process spawn storm на малък VPS → CPU/socket contention → curl в health-check.sh достига `--max-time 10` преди TCP connect → връща `000` → alert pipeline-ът пали пълна Claude диагностика. Час след час. Самата диагностика **е** проблемът, защото потребява ресурси които и без това не достигат.
+
+**Why it matters:** Observer-induced false positive. Diagnostic mechanism-ът е и contributor към failure mode-а който детектва. Costs: (a) реални токени за фалшиви alarms, (b) noise drowns истинските outages (cry-wolf), (c) trust в `health-issues.log` пада — следваща сесия може да dismisса истински 000 като "пак същият стар bug".
+
+**Rule:**
+  - **(a)** Никакви два scheduled task-а на `:00`. Stagger:
+    - `health-check` → `7 * * * *` (off-peak от `:00` collision)
+    - `self-deploy` → `3,13,23,33,43,53 * * * *` (offset 3)
+    - `heartbeat-loop` → `*/5` оставащ, но docs трябва да отбелязва двукратно припокриване на час
+  - **(b)** Все sleep jitter at script head: `sleep $((RANDOM % 5))` преди main work.
+  - **(c)** `--max-time` ≥ 30s + 2 retries на `000` преди paging. False-positive cost ≫ legitimate latency.
+  - **(d)** Page Claude only if **3 consecutive** failures (not 1). Намалява alarm storm × 3.
+
+---
+
+### L10. Auto-update cron спря да commit-ва без alarm
+
+**What:** Очаквана cadence (per `*/10 * * * *` self-deploy + auto-commit): commit на всеки 10–30 min с message `[brain]: auto-update YYYY-MM-DD-HH:MM`.
+  - 2026-05-18: последен commit 14:20, после 8.5h gap до 23:03 (observation 397).
+  - 2026-05-19: само **един** auto-update commit, 07:10:10. После 16h тишина до EOD loop. Никакъв ал-арм, никакъв log запис.
+  - `self-deploy.sh` няма `last-run.log` → невъзможно да се различи "cron не fire-на" от "fire-на и crash-на".
+
+**Why it matters:** Brain е "always-on" by design. Auto-update commit-ите са единственият source of truth за "какво се промени днес" в EOD loop-а. Когато cadence пада, EOD loop-ът чете тишина и неволно signal-ва "нищо не се случи" — точно както днешният loop почти изпусна L1+HTTP 000+L7 statuses, защото `git log --since=midnight` върна 1 ред.
+
+**Rule:**
+  - **(a)** Daily cron `health-of-routines.sh` (нов, TODO by 2026-05-22): `git log --since="2 hours ago" --oneline | grep -c auto-update`. Ако 0 → append CRITICAL ред в `/root/brain/logs/health-issues.log` + Telegram page.
+  - **(b)** `self-deploy.sh` ТРЯБВА да write `/root/brain/logs/routines/self-deploy.last-run.log` с timestamp + exit code преди да приключи. Idiom: `echo "$(date -Is) exit=$?" >> "$LOG"`.
+  - **(c)** EOD loop-ът да започва с `health-of-routines` preflight (същия скрипт, ad-hoc) — ако някоя cron е тиха > 2h, mark го на самия връх на report-а, преди да започне log reading.
+
+---
+
