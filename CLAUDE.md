@@ -65,6 +65,12 @@ When a mistake happens:
 - **Rules-debt → 24h enforcement window.** Всяко `**Rule:**` в `memory/lessons.md` ТРЯБВА в рамките на 24h да доведе до (a) code change който enforce-ва, (b) routine/hook който audit-ва, или (c) explicit `**TODO by YYYY-MM-DD:**` marker. Без едно от тези три → правилото е debt и се escalate-ва като `REGRESSION FROM Lx` на следващия EOD loop. Виж `memory/lessons.md` L6.
 - **Sacred dirs не са scratchpad.** `/root/svd-clean-pro/` и `/root/brain/<app-dirs>/` не приемат cross-project planning notes (`BRAIN*.md` файлове там → reject). Бележки → `/root/brain/docs/notes/`. От iPhone Termius: `pwd` преди `nano` винаги. Виж `memory/lessons.md` L7.
 
+### Active rules (2026-05-19 Learning Loop)
+
+- **Observations must cite verification, not aspiration.** Status `Completed`/`Deployed`/`Fixed`/`Shipped` ТРЯБВА да включва verification probe excerpt в същия turn (`cat <file>` line, `crontab -l` excerpt, `curl -sI` header, `pm2 logs --err` lines, или `git log -1 <file>`). Без verification block → EOD audit downgrade-ва observation до `Approved`. Виж `memory/lessons.md` L8. Контекст: observation 571 излъга за health-check fix; повтори 5× HTTP 000000 цикъл (S36/S39/S41/S42/S50/S51).
+- **No two cron tasks at `:00`.** Stagger schedules + script-head `sleep $((RANDOM % 5))` jitter. `--max-time` за всеки monitoring curl ≥ 30s. Page Claude only след **3 consecutive** failures, не 1. Виж `memory/lessons.md` L9.
+- **Auto-update heartbeat має own watchdog.** Self-deploy ТРЯБВА да write `/root/brain/logs/routines/self-deploy.last-run.log` (timestamp + exit code). `health-of-routines.sh` (cron, daily) проверява че `auto-update` commit-ва се появяват ≥ 1× / 2h, иначе CRITICAL ред в `health-issues.log` + Telegram page. EOD loop стартира с този preflight. Виж `memory/lessons.md` L10.
+
 ## Permission Mode
 
 - Default: `acceptEdits`
