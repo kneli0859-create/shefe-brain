@@ -73,3 +73,6 @@ oauth_token.json
 # Crypto trading
 crypto/.live-enabled
 crypto/api-keys/
+
+# L11 (2026-05-20): planning note with embedded secrets — keep on disk, never commit
+docs/notes/2026-05-17-brain-v2-planning/brain-v2-final.md
