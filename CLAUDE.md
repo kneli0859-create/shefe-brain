@@ -69,7 +69,14 @@ When a mistake happens:
 
 - **Observations must cite verification, not aspiration.** Status `Completed`/`Deployed`/`Fixed`/`Shipped` ТРЯБВА да включва verification probe excerpt в същия turn (`cat <file>` line, `crontab -l` excerpt, `curl -sI` header, `pm2 logs --err` lines, или `git log -1 <file>`). Без verification block → EOD audit downgrade-ва observation до `Approved`. Виж `memory/lessons.md` L8. Контекст: observation 571 излъга за health-check fix; повтори 5× HTTP 000000 цикъл (S36/S39/S41/S42/S50/S51).
 - **No two cron tasks at `:00`.** Stagger schedules + script-head `sleep $((RANDOM % 5))` jitter. `--max-time` за всеки monitoring curl ≥ 30s. Page Claude only след **3 consecutive** failures, не 1. Виж `memory/lessons.md` L9.
-- **Auto-update heartbeat має own watchdog.** Self-deploy ТРЯБВА да write `/root/brain/logs/routines/self-deploy.last-run.log` (timestamp + exit code). `health-of-routines.sh` (cron, daily) проверява че `auto-update` commit-ва се появяват ≥ 1× / 2h, иначе CRITICAL ред в `health-issues.log` + Telegram page. EOD loop стартира с този preflight. Виж `memory/lessons.md` L10.
+- **Auto-update heartbeat має own watchdog.** Self-deploy ТРЯБВА да write `/root/brain/logs/routines/self-deploy.last-run.log` (timestamp + exit code). `health-of-routines.sh` (cron, daily) проверява че `auto-update` commit-ва се появяват ≥ 1× / 2h, иначе CRITICAL ред в `health-issues.log` + Telegram page. EOD loop стартира с този preflight. Виж `memory/lessons.md` L10. ⚠️ **CORRECTED 2026-05-20 — виж L11(b) долу.**
+
+### Active rules (2026-05-20 Learning Loop)
+
+- **Watchdog-ва изпълнение, не изход.** „Липсващ auto-update commit" ≠ failure. `self-deploy.sh` commit-ва цял `/root/brain`, но trigger-ва само на `/root/.claude/` config hash — затова дни без commit са нормални, когато config не се мени. Watchdog върху изход (commit appeared) е cry-wolf (виж L9). Heartbeat метрика = „скриптът се изпълни" (last-run log), не „commit се появи". Виж `memory/lessons.md` L11.
+- **L10 correction.** L10(a) се ОТМЕНЯ: `health-of-routines.sh` НЕ page-ва на „auto-update commit липсва > 2h" — би генерирал постоянни false CRITICAL alarms. Истинският дефект е trigger/scope mismatch в `self-deploy.sh` (commit scope = цял `/root/brain`, trigger = само `.claude/`). Fix: TODO by 2026-05-22, daytime сесия с review — не blind edit на unattended deploy скрипт.
+- **Sacred dir → notes relocation closed.** L7 закрит 2026-05-20: `BRAIN*.md` planning notes преместени от `/root/svd-clean-pro/` → `/root/brain/docs/notes/`. Остатъчен sub-TODO: `.gitignore` `BRAIN*` guard в `/root/svd-clean-pro/` (изисква tracked-file edit в sacred dir → Шефе approval).
+- **Planning notes ≠ secret store.** `brain-v2-final.md` съдържаше 6 hardcoded secrets (5× `ghp_` PAT, 1× `sb_secret_`). Релокация между git repos НЕ ги неутрализира — secret-bearing бележка трябва `.gitignore` или redact. Никога hardcode secret в `.md`; reference `.env.api-keys` по име. Виж `memory/lessons.md` L11(a).
 
 ## Permission Mode
 
