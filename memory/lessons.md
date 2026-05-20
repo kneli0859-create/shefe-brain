@@ -185,3 +185,34 @@ REGRESSION FROM L6: 3 от 4 TODOs пропуснаха deadline. Rule-debt-chec
 
 ---
 
+## 2026-05-20 — End-of-day Learning Loop
+
+### Status of prior TODOs (per L6 enforcement)
+
+- **L1 — stale-action middleware**: TODO by 2026-05-21 (утре), OPEN. `pm2 logs --err` потвърждава продължаващ stale-client traffic: `Failed to find Server Action "x"` 7× днес (svd-clean-app 04:08/08:59/13:11/15:08; svd-clean-demo 03:32/07:07/11:14). Кодът е чист (`'use server'` → 0 hits) — грешките са от кеширани браузър табове. Не past deadline.
+- **L3 — `error-funnel.sh`**: deadline беше **2026-05-20 = днес**. `ls /root/brain/routines/scheduled/` → скриптът не съществува; `logs/errors/` празна от 2026-05-17. ❌ **PAST DEADLINE — REGRESSION FROM L3.**
+- **L6 — `rules-debt-check.sh`**: OPEN (без дата). Скриптът липсва; този EOD loop пак ръчно grep-на `lessons.md`.
+- **L7 — BRAIN*.md cleanup**: беше 2 дни past deadline → ✅ **CLOSED този loop** (виж L11(a)).
+- **L9 — cron staggering**: declared 2026-05-19, 24h прозорец изтече. `crontab -l` → `0 * * * * health-check.sh` + `*/10 * * * * self-deploy.sh` **UNCHANGED**, не е приложено. НО `learning-loop.log` показва, че вчерашният loop изрично го escalate-на като Шефе-решение („да го приложа ли утре, или остава debt?") — затова е **pending Шефе decision**, не unilateral debt. Re-surfaced долу.
+- **L10 — self-deploy watchdog**: deadline 2026-05-22. ⚠️ **CORRECTED този loop преди deadline** — премисата беше грешна (виж L11).
+
+### L11. „Мъртвият auto-update" беше misdiagnosis — self-deploy commit-ва цял `/root/brain`, но trigger-ва само на `.claude` config hash
+
+**What:** Truth audit на `cat /root/brain/scripts/maintenance/self-deploy.sh`:
+  - `WATCH=(...)` (lines 6–14) — само 7 пътя, **всички в `/root/.claude/`** (agents, skills, commands, hooks, CLAUDE.md, mcp.json, statusline.sh). `/root/brain/memory/` НЕ е watched.
+  - Lines 30–65: целият commit блок (`git add -A` на цял `/root/brain` + push + `pm2 restart`) е под `if [ "$NEW_HASH" != "$OLD_HASH" ]`. Ако `.claude/` config не се е променил → блокът се skip-ва изцяло, **без дори log ред**.
+  - `stat self-deploy.log` → mtime `2026-05-19 07:10:13`; последен auto-update commit `4bee10d` 07:10. От тогава `.claude/` е непроменено → self-deploy fire-ва на всеки 10 мин, смята идентичен хеш, излиза тихо. **Това е коректно поведение по дизайн, не failure.**
+  - Резултат: `git log --since=midnight` за 2026-05-20 в `/root/brain` И `/root/svd-clean-pro` → **0 commits**. `memory/reports/2026-05-20-morning.md`, `memory/briefings/2026-05-20.md`, `memory/tokens/2026-05-19.md` написани от routines, останаха untracked — нищо в `.claude/` не trigger-на commit-а, който щеше да ги помете с `git add -A`.
+
+**Why it matters:** **L10 (вчера) сбърка диагнозата.** L10 твърдеше „auto-update cron спря да commit-ва без alarm" и предложи `health-of-routines.sh`, който page-ва ако `auto-update` commit липсва > 2h. Но > 2h без commit е **нормално**, когато `.claude/` не се е променял. Такъв watchdog би произвел постоянни false CRITICAL alarms — точно cry-wolf анти-pattern-ът от L9. Watchdog върху коректно idle поведение = synthetic-outage генератор #2 (HTTP 000000 беше #1). Истинският дефект е **дизайнерски, не операционен**: commit-ът scope-ва цял `/root/brain`, но trigger-ът наблюдава само `/root/.claude/`. Brain-generated content (reports, briefings, memory, lessons) никога не се commit-ва автоматично, освен ако случайно `.claude` config се промени едновременно. EOD-loop commit-ите maskират това — `git log` показва дневен `[claude]: learning:` ред, та heartbeat-ът „изглежда жив", докато autonomous self-deploy за brain content е flatline 40h.
+
+**Rule:**
+  - **(a) — приложено този loop (closes L7):** `BRAIN V2 FINAL.md` + `BRAIN v2_1 LIVING EMPIRE.md` преместени от sacred `/root/svd-clean-pro/` → `docs/notes/2026-05-17-brain-v2-planning/` (renamed kebab-case). Verification: `git -C /root/svd-clean-pro status --porcelain` → празно. ⚠️ **Sub-finding:** `brain-v2-final.md` съдържа **6 hardcoded secrets** (`grep -cE` → 5× `ghp_` GitHub PAT на lines 68/126/141/152/1183, 1× `sb_secret_` Supabase на line 1191) — secrets-scanner hook коректно блокира commit-а. **Релокация между два git repo НЕ неутрализира embedded secrets.** Файлът е `.gitignore`-нат (остава на диск като reference, не влиза в git history); чистият `brain-v2_1-living-empire.md` (0 secrets) commit-нат нормално. Трите untracked memory файла (`reports/2026-05-20-morning.md`, `briefings/2026-05-20.md`, `tokens/2026-05-19.md`) commit-нати ръчно този loop. **Шефе action: ротирай GitHub PAT + Supabase secret ако са живи; редактирай бележката.**
+  - **(b) — L10 correction (ratified-rule update):** `health-of-routines.sh` НЕ бива да page-ва на „auto-update commit липсва > 2h" — това е false-positive генератор. Heartbeat метриката трябва да е „**self-deploy.sh се изпълни**" (last-run log), НЕ „commit се появи". No-op run = здраве, не болест. Заменя L10(a).
+  - **(c) TODO by 2026-05-22:** Поправи trigger/scope mismatch в `self-deploy.sh` — commit-вай ако (config hash се промени) **ИЛИ** (`git -C /root/brain status --porcelain` непразно); но `pm2 restart brain-dashboard` **само** при config промяна (иначе dashboard restart-ва при всеки memory write). Дребен но non-trivial refactor → **daytime сесия с review, НЕ blind night edit** на unattended auto-deploy скрипт.
+  - **(d) TODO by 2026-05-22:** добави `self-deploy.last-run.log` write (idiom от L10b) — остава валиден и след корекцията.
+
+**Pending Шефе decision (re-surfaced):** L9 cron staggering — 10 мин mechanical работа, прескрибирана verbatim в Constitution. Не приложена автономно тази нощ, защото: (1) вчерашният loop изрично я остави за approval; (2) unattended 23:00 crontab edit — typo чупи ВСИЧКИ routines до сутринта. Препоръка: apply в daytime сесия. Risk при ново отлагане: повторен HTTP 000000 storm на следващ ресурсен spike.
+
+---
+
