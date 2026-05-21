@@ -2,14 +2,20 @@
   "mcpServers": {
     "github": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "<GITHUB_PAT>"
       }
     },
     "supabase": {
       "command": "npx",
-      "args": ["-y", "@supabase/mcp-server-supabase"],
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase"
+      ],
       "env": {
         "SUPABASE_URL": "https://dlbnjiomldlijbshxysh.supabase.co",
         "SUPABASE_ACCESS_TOKEN": "<SUPABASE_SECRET>"
@@ -17,23 +23,49 @@
     },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/root/brain"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/root/brain"
+      ]
     },
     "puppeteer": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ]
     },
     "memory": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest"]
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
+    "postgres": {
+      "command": "uvx",
+      "args": [
+        "postgres-mcp",
+        "--access-mode=restricted"
+      ],
+      "env": {
+        "DATABASE_URI": "postgresql://traderops:075bd5bfe0d2aa935ef3ee58d4896a82@localhost:5433/traderops"
+      }
     }
   }
 }
