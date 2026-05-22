@@ -78,6 +78,12 @@ When a mistake happens:
 - **Sacred dir → notes relocation closed.** L7 закрит 2026-05-20: `BRAIN*.md` planning notes преместени от `/root/svd-clean-pro/` → `/root/brain/docs/notes/`. Остатъчен sub-TODO: `.gitignore` `BRAIN*` guard в `/root/svd-clean-pro/` (изисква tracked-file edit в sacred dir → Шефе approval).
 - **Planning notes ≠ secret store.** `brain-v2-final.md` съдържаше 6 hardcoded secrets (5× `ghp_` PAT, 1× `sb_secret_`). Релокация между git repos НЕ ги неутрализира — secret-bearing бележка трябва `.gitignore` или redact. Никога hardcode secret в `.md`; reference `.env.api-keys` по име. Виж `memory/lessons.md` L11(a).
 
+### Active rules (2026-05-22 Learning Loop)
+
+- **Code-TODO трябва real owner.** Всеки learning-loop `**TODO**` с code change носи owner `Шефе` или `next /wake` — никога „daytime review" (несъществуваща сесия). Без real owner → урокът се сваля до behavioral rule или escalate. EOD loop append-ва отворените code-TODO-та в next morning briefing — невидим TODO = мъртъв. Виж `memory/lessons.md` L12.
+- **No-pain → no-TODO.** Преди speculative infra-TODO (error-funnel, watchdog, rules-debt-check) — провери за реална наблюдавана болка днес. `logs/errors/` празна 5 дни → error-funnel не се строи. Виж `memory/lessons.md` L12.
+- **L1 closed — expected residual.** `Failed to find Server Action "x"` е перманентен residual от завършена Server Action→`/api/` миграция (source чист от 2026-05-19), от кеширани табове/ботове. Не е code defect. Спира да се трека като debt. Виж `memory/lessons.md` L12.
+
 ## Permission Mode
 
 - Default: `acceptEdits`
