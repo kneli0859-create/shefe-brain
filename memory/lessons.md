@@ -216,3 +216,37 @@ REGRESSION FROM L6: 3 от 4 TODOs пропуснаха deadline. Rule-debt-chec
 
 ---
 
+## 2026-05-22 — End-of-day Learning Loop
+
+### Status of prior TODOs (per L6 enforcement)
+
+- **L1 — stale-action handling**: TODO беше 2026-05-21 → **1 ден PAST DEADLINE**. НО re-truth-audit: `grep -rl "use server"` в `/root/svd-clean-pro/{app,src}` → **0 hits в source** (само `node_modules/next/*`). Кодът е чист от 2026-05-19. `Failed to find Server Action "x"` се появи 11× днес (svd-clean-app 10:48×4 / 13:51×2 / 17:51×3 / 21:47×2; demo 0). Burst-ът 10:48:08/:18/:28/:38 — точно 10s интервал, 4 пъти — е **автоматизиран клиент (monitor/bot с retry loop), не човек**. → **L1 RECLASSIFIED & CLOSED**: грешката е *перманентен residual* от завършена миграция (Server Action → `/api/`), идващ от кеширани браузър табове/ботове със стар bundle. Не е code defect — няма какво да се "fix"-не в svd-clean-pro. Опционален polish (error boundary с hard-reload) → backlog, НЕ deadline-TODO. Спираме да го трекаме като debt.
+- **L3 — error-funnel.sh**: deadline беше 2026-05-20 → **2 дни past**. `logs/errors/` празна от 2026-05-17 (5 дни). Funnel-ът няма какво да funnel-ва → phantom-TODO (виж L12d). Flag за Шефе: нужен ли е изобщо.
+- **L6 — rules-debt-check.sh**: OPEN. Скриптът липсва; този EOD loop пак ръчно grep-на `lessons.md`.
+- **L9 — cron staggering**: 3 дни pending Шефе decision. `crontab -l` → `*/10 self-deploy` + `0 health-check` + `*/5 heartbeat` UNCHANGED.
+- **L10(d)/L11(d) — self-deploy.last-run.log**: deadline **2026-05-22 = днес** → ❌ **NOT DONE**. `tail self-deploy.sh` → няма last-run write; `logs/routines/self-deploy.last-run.log` отсъства.
+- **L11(c) — self-deploy.sh trigger/scope fix**: deadline **2026-05-22 = днес** → ❌ **NOT DONE**.
+
+### L12. Learning loop-ът е write-only — уроци се натрупват, enforcement не се ship-ва
+
+**What:** 5 EOD loop-а (2026-05-17 → 2026-05-20) произведоха 11 номерирани урока + ~6 code/routine TODO-та (L1, L3, L6, L9, L10d, L11c). Затворени чрез автономна промяна: **0**. (L7 затворен, но беше file-move; L10 „коригиран", не затворен.) Тази нощ 2 TODO-та удариха deadline (L10d/L11d, L11c) — двете недокоснати; L1 1 ден past; L3 2 дни past. Net rules-debt расте монотонно: всеки loop re-discover-ва старите, re-escalate-ва ги, добавя нови.
+
+Коренът е структурен, не мързел:
+  1. **Night EOD loop няма право да ship-ва код.** L11 изрично забрани blind night edits на unattended скриптове (`self-deploy.sh`). Правилно — но значи всеки code-TODO се отлага.
+  2. **Отлага се към „daytime сесия с review" — която не съществува.** Шефе работи 100% от iPhone Termius; няма recurring daytime coding routine. TODO assigned към несъществуваща сесия = assigned към никого.
+  3. **Morning briefing-ът не носи TODO-тата.** `cat memory/briefings/2026-05-22.md` → overnight opps + heartbeat + token usage. **Нула ред за rules-debt.** Шефе никога не вижда отворените TODO-та → не може да ги изпълни нито отхвърли.
+
+Резултат: TODO-тата живеят само в `lessons.md`, четен единствено от следващия EOD loop, който не може да ги изпълни. Затворен цикъл без exit.
+
+**Why it matters:** Learning loop без enforcement е дневник, не система за подобрение. Цената: (a) `lessons.md` расте, сигнал/шум пада — реален урок се губи сред 6 zombie-TODO; (b) всеки loop хаби токени да re-audit-ва същия мъртъв ledger; (c) фалшиво чувство за прогрес — `git log` показва дневен `[claude]: learning:` ред, heartbeat „изглежда жив", докато 0 от препоръките се материализира; (d) speculative-infra TODO-та (error-funnel, rules-debt-check, health-of-routines) се трупат, без да адресират реална болка — болката е малка (един log ред, едно cron stagger), решенията — overengineered.
+
+**Rule:**
+  - **(a)** Всеки `**TODO**` който изисква code change ТРЯБВА да носи **реален owner**: `Шефе` или `next /wake`. „daytime review" не е owner. TODO без реален owner → НЕ се създава; вместо това урокът се (i) сваля до behavioral Constitution rule, който loop-ът МОЖЕ да enforce-не, или (ii) escalate-ва към Шефе като explicit решение.
+  - **(b)** EOD loop-ът ТРЯБВА да append-ва всички отворени code-TODO-та като top-block в следващия morning briefing (`memory/briefings/`), за да ги вижда Шефе. Невидим TODO = мъртъв TODO.
+  - **(c)** Преди нов infra-TODO loop-ът пита: „има ли реална, наблюдавана болка днес?" Празна `logs/errors/` 5 дни → error-funnel не е нужен. No-pain → no-TODO.
+  - **(d)** Урок без обвързана enforcement в 24h (L6) и без реален owner → не остава като „debt"; затваря се като `WONTFIX` или се escalate-ва. Ledger-ът не трупа zombie-та.
+
+**TODO (owner: Шефе via next /wake, by 2026-05-23):** Batch-решение — едно daytime сесия, 3 micro-fix-а (~20 мин общо): (1) `self-deploy.last-run.log` one-liner [L10d]; (2) cron stagger [L9]; (3) `self-deploy.sh` trigger/scope [L11c]. Или explicit „остават backlog". Без решение → escalate отново на 2026-05-23 EOD.
+
+---
+
