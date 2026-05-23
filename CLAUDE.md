@@ -84,6 +84,11 @@ When a mistake happens:
 - **No-pain → no-TODO.** Преди speculative infra-TODO (error-funnel, watchdog, rules-debt-check) — провери за реална наблюдавана болка днес. `logs/errors/` празна 5 дни → error-funnel не се строи. Виж `memory/lessons.md` L12.
 - **L1 closed — expected residual.** `Failed to find Server Action "x"` е перманентен residual от завършена Server Action→`/api/` миграция (source чист от 2026-05-19), от кеширани табове/ботове. Не е code defect. Спира да се трека като debt. Виж `memory/lessons.md` L12.
 
+### Active rules (2026-05-23 Learning Loop)
+
+- **Pain-materialized TODO escalation.** Когато owner-tagged TODO в `OPEN-TODOS.md` има своя predicted failure mode действително да fire-не (alarm в `health-issues.log`, regression, recurrence на затворен бъг), EOD loop-ът маркира реда `❗ ESCALATED 🔥 — recurred YYYY-MM-DD HH:MM (cost)`, скъсява deadline-а до `next /wake`, и prepend-ва urgency banner в TL;DR на следващия morning brief. Без auto-fix — L11(b) night-edit prohibition остава; само по-силен signal. Equal visibility = no priority → mobile-first reader skim-ва всичко равно. Виж `memory/lessons.md` L13.
+- **L9 escalated 2026-05-23 18:00.** Cron-collision/curl-stdout bug fire-на реално днес (brain.svd-clean.de 000000); auto-pager изгуби S199 reduplicating L9 diagnostics. Deadline на 3-те batched TODO-та (L9 stagger, L10d last-run.log, L11c trigger/scope) → `next /wake`. Виж `memory/OPEN-TODOS.md`.
+
 ## Permission Mode
 
 - Default: `acceptEdits`
