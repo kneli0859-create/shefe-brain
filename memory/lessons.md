@@ -250,3 +250,39 @@ REGRESSION FROM L6: 3 от 4 TODOs пропуснаха deadline. Rule-debt-chec
 
 ---
 
+## 2026-05-23 — End-of-day Learning Loop
+
+### Status of prior TODOs (per L6 enforcement)
+
+- **L9 — cron staggering**: 4 дни pending. Deadline беше **2026-05-23 = днес** → ❌ **NOT DONE.** `crontab -l | grep -E "health-check|self-deploy|heartbeat"` → пак `0 * * * *` + `*/10` + `*/5`, UNCHANGED. ⚠️ **PAIN MATERIALIZED**: вчерашната тишина (4 дни без 000 alarm) приключи — днес `health-issues.log` записа `[2026-05-23T18:00:11+02:00] ❌ https://brain.svd-clean.de returned 000000`. Auto-pager стартира S199 за пълна диагностика → потвърди същия curl-stdout + cron-collision bug от L9, изгуби токени, никаква нова информация. Cry-wolf cost-ът от L9 вече не е теоретичен.
+- **L10d/L11d — self-deploy.last-run.log**: deadline беше 2026-05-23 → ❌ **NOT DONE.** `tail self-deploy.sh` — няма последен write; `logs/routines/self-deploy.last-run.log` отсъства.
+- **L11c — self-deploy.sh trigger/scope fix**: deadline беше 2026-05-23 → ❌ **NOT DONE.**
+- **L12a/b — code-TODO real owner + morning-brief carry**: ✅ **PARTIALLY WORKING.** `memory/reports/2026-05-23-morning.md` §5 ясно изписа 3-те batched TODO-та с deadline „ДНЕС". Visibility — успех. **Action — провал**: deadline дойде и отмина, 0 от 3-те докоснати.
+- **L12c — no-pain no-TODO**: ✅ **VALIDATED.** `logs/errors/` — 6-ти ден празна; error-funnel-ът остава неконструиран; нула пропуснати реални грешки.
+- **L1 — Server Action „x" residual**: closed-as-residual продължава да валидира. 6 errors днес (03:42, 07:13, 11:13, 15:36, 19:35, 22:38) — точно ~4h cadence, идентичен на бот-retry pattern. Никаква нова signal.
+
+### L13. „Pain materialized" — visible-but-unactioned TODO трябва тегло, не само visibility
+
+**What:** L12b беше шипнат — `OPEN-TODOS.md` създаден, morning brief-ът го носи. Днес flow-ът работи: 07:00 morning report буквално започна с „⏰ 3 batched TODO-та due ДНЕС" в TL;DR. Шефе го прочете (или не — нямам log за това), не отговори с одобрение / отказ / отлагане. В 18:00:11 L9-bug-ът, който TODO #2 трябваше да поправи, fire-на: `[2026-05-23T18:00:11+02:00] ❌ https://brain.svd-clean.de returned 000000`. Auto-pager-ът извика claude --max-turns 10 (S199), който прекара пълна сесия преоткривайки точно същия root-cause (curl stdout bug + cron contention) който L9 описа на 19-ти май. Това е третата сесия (S42 → S50/S51 → S199) която диагностицира идентичен бъг.
+
+Truth audit на пропускателния канал:
+  1. **Detection**: ✅ работи (health-check.sh хваща 000-та).
+  2. **Documentation**: ✅ работи (L9 написан, OPEN-TODOS.md съществува).
+  3. **Visibility**: ✅ работи (morning brief §5 показа TODO-тата днес).
+  4. **Prioritization**: ❌ **СЧУПЕНО.** Всички 3 TODO-та носят равно тегло в брифинга — нищо не сигнализира „L9 ще се обади ДНЕС, и ще струва токени". Шефе скрол-ва от iPhone, вижда 3 равни bullet-а, отлага и трите. Равна visibility = няма priority signal.
+  5. **Enforcement**: ❌ счупено (L12 предсказа).
+
+**Why it matters:** Visibility (L12b) беше необходимо, но недостатъчно. Mobile-first reader skim-ва. Без urgency weighting, TODO-та с активна материализирана щета (cron collision вече гори токени) изглеждат равни на cosmetic ones (refactor with no observed pain). Equal-priority list = no prioritization at all. Същевременно overcorrecting в обратната посока (autonomous night fix, заобикаля L11(b)) е забранено за добра причина — 23:00 crontab edit чупи всичко тихо до сутринта. Решението не е bypass на approval gate, а **по-добро signaling** на цената.
+
+**Rule (behavioral, enforceable от самия EOD loop — без нова infra):**
+  - **(a) Pain-materialized escalation tag.** Когато owner-tagged TODO в `OPEN-TODOS.md` има своя predicted failure mode действително да fire-не в съответния ден (alarm в `health-issues.log`, regression, recurrence на затворен бъг), EOD loop-ът маркира реда с `❗ ESCALATED 🔥 — recurred YYYY-MM-DD HH:MM (cost: X)`. Без auto-fix; само нов tag.
+  - **(b) Deadline compression on recurrence.** Escalated TODO automatically получава нов deadline `next /wake` (т.е. морен изборка от briefing-а в най-близка сесия), не плосък „2026-05-XX". Не може повторно да се отложи без explicit Шефе „defer".
+  - **(c) Banner in next morning brief.** EOD loop-ът prepend-ва в morning brief-а (top of TL;DR, преди списъка) 1-ред urgency banner за всеки escalated TODO: `🔥 L9 RECURRED 2026-05-23 18:00 — burned S199, see §5 #2`. Banner-ът счупва equal-priority illusion.
+  - **(d) No auto-fix bypass.** L13 НЕ дава autonomous право за нощни code edits на cron/script (L11(b) остава). Само сигнализира по-силно. Гейтът остава Шефе.
+
+**Enforcement:** Тази нощ enacted директно — `OPEN-TODOS.md` обновен с `❗ ESCALATED` ред за L9 (виж commit). Утрешният morning brief генератор (`/wake`/morning-report.sh) трябва да чете escalated tag-овете от OPEN-TODOS.md и да emit-ва banner-а. **TODO behavioral, не code**: следващият morning report (2026-05-24) трябва да започне с red 🔥 banner за L9; ако не — L13 също е write-only и трябва да се повтори анализа.
+
+**Meta-observation:** L12 (вчера) каза „learning loop is write-only". Тази нощ L13 признава, че L12b сам по себе си не реши проблема — само го направи видим. Three-loop pattern сега: L12 = ledger; L13 = weighting; **бъдещ L14 (ако и L13 не сработи) = pre-approved emergency-fix authorization with strict safety net.** Esca­li­ра­не­то не е автоматично — изисква още един cycle на доказана неефективност.
+
+---
+
