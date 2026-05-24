@@ -87,7 +87,13 @@ When a mistake happens:
 ### Active rules (2026-05-23 Learning Loop)
 
 - **Pain-materialized TODO escalation.** Когато owner-tagged TODO в `OPEN-TODOS.md` има своя predicted failure mode действително да fire-не (alarm в `health-issues.log`, regression, recurrence на затворен бъг), EOD loop-ът маркира реда `❗ ESCALATED 🔥 — recurred YYYY-MM-DD HH:MM (cost)`, скъсява deadline-а до `next /wake`, и prepend-ва urgency banner в TL;DR на следващия morning brief. Без auto-fix — L11(b) night-edit prohibition остава; само по-силен signal. Equal visibility = no priority → mobile-first reader skim-ва всичко равно. Виж `memory/lessons.md` L13.
-- **L9 escalated 2026-05-23 18:00.** Cron-collision/curl-stdout bug fire-на реално днес (brain.svd-clean.de 000000); auto-pager изгуби S199 reduplicating L9 diagnostics. Deadline на 3-те batched TODO-та (L9 stagger, L10d last-run.log, L11c trigger/scope) → `next /wake`. Виж `memory/OPEN-TODOS.md`.
+- **L9 escalated 2026-05-23 18:00.** Cron-collision/curl-stdout bug fire-на реално днес (brain.svd-clean.de 000000); auto-pager изгуби S199 reduplicating L9 diagnostics. Deadline на 3-те batched TODO-та (L9 stagger, L10d last-run.log, L11c trigger/scope) → `next /wake`. Виж `memory/OPEN-TODOS.md`. **UPDATE 2026-05-24:** L9 trio преместено в `Acknowledged-deferred` (L14) — 0 нови pain events, owner declined rationally.
+
+### Active rules (2026-05-24 Learning Loop)
+
+- **Owner deferral overrides loop escalation.** Когато ESCALATED TODO (L13) остане unactioned ≥1 ден И `activity.log` показва ≥10 file ops в session window (доказва owner-aware) И няма action в crontab/git → EOD loop премества TODO от `🔥 ESCALATED` към `🕊 Acknowledged-deferred` в `OPEN-TODOS.md`. Daily re-escalation спира; banner removal от morning brief. Re-escalation само при ново fire-ване на pain (нов запис в `health-issues.log` за същия root cause). Не cry-wolf към owner-а. Виж `memory/lessons.md` L14.
+- **No extrapolation от EOD window.** Преди да declared „owner никога не прави X" → `tail -100 /root/.claude/logs/activity.log` truth audit. EOD loop вижда само нощно git log, не цял ден activity. L12 hypothesis („daytime сесия не съществува") беше refuted днес от 7h наблюдавана работа на `/root/projects/blge`. Виж `memory/lessons.md` L15.
+- **Opportunity work supersedes rules-debt.** Когато activity.log показва ≥10 file ops в active project dir (revenue work) → EOD report-ът отбелязва „daytime work observed: project=X" и НЕ миксва rules-debt urgency с brief-а. Rules-debt в собствена section. Bundle hint, не coercion. Виж `memory/lessons.md` L15(b-c).
 
 ## Permission Mode
 
