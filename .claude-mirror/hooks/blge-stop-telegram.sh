@@ -29,9 +29,16 @@ transcript_path=$(echo "$event" | jq -r '.transcript_path // empty' 2>/dev/null)
 [ -z "$transcript_path" ] && exit 0
 [ ! -f "$transcript_path" ] && exit 0
 
-# Extract last assistant TEXT message from transcript JSONL.
-# Tool_use messages don't count — we want the last narrative reply.
-# Strategy: reverse-iterate lines; first one with a text content block wins.
+# Collect ALL assistant text from the CURRENT turn.
+# Tricky: transcript JSONL records tool_results as "type":"user" entries too,
+# so we must skip those when finding the boundary of the current turn.
+# A REAL user input has no tool_result content blocks.
+last_user_line=$(grep -n '"type":"user"' "$transcript_path" 2>/dev/null \
+  | grep -v '"type":"tool_result"' \
+  | tail -1 \
+  | cut -d: -f1)
+[ -z "$last_user_line" ] && exit 0
+
 last_msg=""
 while IFS= read -r line; do
   text=$(printf '%s' "$line" \
@@ -40,10 +47,13 @@ while IFS= read -r line; do
              | select(length > 0)
              | join("\n\n")' 2>/dev/null)
   if [ -n "$text" ] && [ "$text" != "null" ]; then
-    last_msg="$text"
-    break
+    if [ -n "$last_msg" ]; then
+      last_msg="${last_msg}"$'\n\n━━━━━━━━━━\n\n'"${text}"
+    else
+      last_msg="$text"
+    fi
   fi
-done < <(tac "$transcript_path" 2>/dev/null)
+done < <(tail -n +"$((last_user_line + 1))" "$transcript_path" 2>/dev/null)
 
 # Filters
 [ -z "$last_msg" ] && exit 0
