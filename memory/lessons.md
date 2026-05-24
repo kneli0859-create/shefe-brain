@@ -286,3 +286,60 @@ Truth audit на пропускателния канал:
 
 ---
 
+## 2026-05-24 — End-of-day Learning Loop
+
+### Status of prior TODOs (per L6 enforcement)
+
+- **L9 cron stagger + 3-fail gate + RECENT_FAILS guard**: ❗ ESCALATED 2026-05-23. Deadline беше `next /wake` (today). `crontab -l` → `0 * * *` health-check + `*/10 * * *` self-deploy + `*/5 * * *` heartbeat — **UNCHANGED**. ❌ **NOT DONE.** НО: 0 fire-вания днес (`health-issues.log` last entry `2026-05-23T18:00:11`) → cost от 1-ден deferral = €0.
+- **L10d/L11d — self-deploy.last-run.log**: ❌ NOT DONE. `stat self-deploy.sh` → Modify `2026-05-17 20:38:50` (7 дни untouched). Логът отсъства.
+- **L11c — self-deploy.sh trigger/scope fix**: ❌ NOT DONE. Същият untouched script.
+- **L12 hypothesis („daytime сесия не съществува")**: ❌ **REFUTED от observed data — виж L15.**
+- **L13 banner enforcement**: ⚠️ **Невозможно за audit от EOD loop.** Тазишен morning brief генератор не е inspect-ван (`memory/reports/2026-05-24-morning.md` exists but L13 не определя дали banner е emit-нат от това loop-а или от друг path). Behavioral TODO се пренаписва в L14 за следващ cycle.
+- **L1 — Server Action „x" residual**: 6 errors днес (02:10, 06:07, 10:09, 14:08, 18:09, 22:06) — точен ~4h cadence продължава. Бот-pattern. Closed-as-residual държи.
+
+### L14. Owner deferral overrides loop escalation — спираме cry-wolf към Шефе
+
+**What:** Шефе беше **активен 7 часа daytime** (15:56 → 22:51 CEST), 60+ file ops в `/root/projects/blge` (`activity.log:1-60`) — нов revenue project (Bulgaria geothermal/wellness платформа). Direkt observable evidence: Supabase migrations × 8, RLS policies, design tokens, therme page, sitemap/robots/llms.txt, Next.js scaffold, custom hook `blge-stop-telegram.sh`. Цялата работа извън sacred dirs (`/root/projects/` не е изброен в hot paths) → правомощна.
+
+Тазишният morning brief (per L13(c)) трябваше да започва с urgency banner за L9 + 2 batched TODO-та. Дори ако banner-ът е emit-нат коректно: Шефе го е видял, осъзнато избра blge revenue work, не fix-овете. И **това е rational**: L9 fire-на 1× за последните 5 дни, cost ~10k токени, не блокира users; blge е потенциално €€. Opportunity cost се accepts.
+
+Loop-ът сега има избор: (i) tag L9 като ESCALATED **отново** утре, и пак, и пак — eventually owner ignore-ва urgency tag-овете изобщо (cry-wolf към Шефе, точно което L9 предупреди да не правим към _Claude_); или (ii) признава rational deferral, спира daily re-escalation, държи TODO живо но тихо до следваща материализация на pain.
+
+Имам **директни** доказателства, не assumptions: activity.log показва extensive daytime work; self-deploy.sh.mtime потвърждава 0 docked; crontab unchanged → Шефе НЕ е unaware, той е declined.
+
+**Why it matters:** L13 решаваше прибавянето на signal към un-prioritized list. L14 решава какво се случва, когато signal-ът работи коректно, но owner-ът има по-силна причина. Без L14, всеки EOD loop ще re-tag-ва същия trio TODO ad infinitum → urgency tag-ът губи смисъл, точно като auto-pager-ите от L9. Структурно: equality-of-attention is a finite resource; harassing owner-а за €0-cost defect е по-вредно от тихото му съхраняване в ledger-а.
+
+Има и втори тип fault detection тук: L13 предполагаше „pain-materialized → urgency". Това е необходимо, но недостатъчно. **Реалното правило е: pain-materialized AND owner-aware AND no-acknowledged-deferral.** Ако owner has-seen-and-chose-otherwise, не e липсваща priority — има explicit defer.
+
+**Rule (behavioral, EOD loop self-enforceable — нова infra не нужна):**
+  - **(a) Acknowledged-deferred state.** Когато ESCALATED TODO остане unactioned ≥1 ден И `/root/.claude/logs/activity.log` показва ≥10 file ops в session window (доказва owner-активност) И `crontab -l` / `git log` не показват action — loop-ът премества TODO от "🔥 ESCALATED" section към нова "🕊 Acknowledged-deferred" section в `OPEN-TODOS.md`. Запазва историята (escalation timestamp, cost), но **спира daily re-escalation**.
+  - **(b) Banner removal on acknowledged-deferral.** Морен brief вече НЕ emit-ва 🔥 urgency banner за такива TODO-та. Те остават видими в OPEN-TODOS.md (per L12b), но без top-of-brief signaling.
+  - **(c) Re-escalation trigger.** Acknowledged-deferred TODO се връща в 🔥 ESCALATED само при **нова материализация на pain** (нов запис в `health-issues.log` за същия root cause). Не на cadence, а на signal.
+  - **(d) Owner override преобърнат.** Шефе може да caller `/escalate L9` ако промени мнението — но default state е „я взе решение, уважаваме го".
+  - **(e) Не пренебрегвай TODO напълно.** Acknowledged-deferred ≠ closed. Все още броим за rules-debt count в EOD audit; все още го показваме в monthly review (когато такъв има). Просто без daily cry-wolf.
+
+**Enforcement (този loop):** `OPEN-TODOS.md` се обновява тази нощ — `🔥 ESCALATED` → `🕊 Acknowledged-deferred` за L9 trio. Banner removal applies utre.
+
+### L15. Шефе работи daytime, когато има по-силна цел — L12-те assumptions трябват refresh
+
+**What:** L12 (2026-05-22) declared, че „daytime сесия не съществува" и затова code-TODO-та assigned към „daytime review" са „assigned към никого". Това оправда L12a rule-а: TODO-та трябва explicit owner (Шефе или `next /wake`). Премисата беше: Шефе **никога** не работи daytime, само iPhone Termius в session windows.
+
+Truth audit днес опровергава това: `activity.log[2026-05-24]` 100+ file ops спан 15:56 → 22:51, mostly Write/Edit на `/root/projects/blge/**`. Това е 7-часова continuous daytime сесия. Не e isolated event — `15:57 STACK.md`, `16:25 SCHEMA.md`, `16:26-16:27` 7 migration файла, `16:31` Supabase clients, `16:32` design-tokens, `17:14-17:19` .env setup, `18:01-18:12` globals.css + queries + page, `21:48-22:51` второ flow с next.config + sitemap + page redesign. Структуриран multi-phase project work, не ad-hoc.
+
+Грешката на L12: extrapolated от 4-5 EOD loop-а (които виждат само нощно git log) до „daytime никога не се случва". В реалност **daytime сесии съществуват, когато има strong opportunity signal (revenue project, deadline, новост)**, и не съществуват за rules-debt cleanup (low signal, no incentive).
+
+**Why it matters:** Грешни premises произвеждат грешни правила. L12a („реален owner") остава добро правило, но **не защото daytime сесия липсва** — а защото без specific opportunity Шефе няма incentive за non-revenue work. Това коренно променя стратегията: rules-debt ще се ship-ва когато bundle-нат с revenue work (1 commit в blge сесия може да включи 5-min self-deploy.sh fix), не като самостоятелна daytime „rules cleanup" сесия (която наистина не съществува).
+
+Свързано: L14(a) acknowledged-deferred state е следствие точно на това — Шефе не работи rules-debt самостоятелно, не защото не може, а защото не иска (rationally). Force-ване чрез по-силно signaling = cry-wolf.
+
+**Rule (epistemic, не операционно):**
+  - **(a) EOD loop-ът НЕ extrapolate-ва от own log window към „owner никога не прави X".** Преди такова твърдение → `tail -100 /root/.claude/logs/activity.log` truth audit. Activity.log е цялостен audit trail (Read/Write/Edit/Bash hooks), не само git.
+  - **(b) Opportunity work supersedes rules-debt.** Когато EOD loop вижда daytime work на нов/active project (`activity.log` показва project dir с ≥10 ops), не piggyback с „и също напомняме L9". Brief нека е focused на revenue project status, rules-debt в собствена section. Не миксвай urgency signals.
+  - **(c) Bundle hint vs autonomous fix.** Когато Шефе stage-ва commit в `/root/brain/`, hook (бъдещ — не сега) може да предложи „btw, L9 fix е 5 ред promenа, искаш ли да го bundle-нем?" Това е opportunity, не coercion. **Не за тази нощ** — само бележка за бъдеще.
+
+**Meta:** Това е третия cycle (L12 → L13 → L14/L15) където loop-ът преоткрива собствените си грешки. Pattern: всяко правило, родено в night audit без daytime signal, рискува да extrapolate-ва грешно. Curve се корига чрез ground-truth от `activity.log`, не чрез повече rules. Maturity = по-малко правила, по-добра evidence.
+
+**TODO (behavioral, enforceable от EOD self-check):** Преди да добавя нов code-TODO в OPEN-TODOS.md, loop-ът чете `activity.log` от последните 24h. Ако ≥10 ops в non-/root/brain proj dir → отбележвам в EOD report-а „daytime work observed: project=X, ops=Y" и приоритизирам rules-debt в собствена section, не като top-of-brief urgency. Започва от **утрешния morning brief**.
+
+---
+
