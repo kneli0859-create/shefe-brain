@@ -6,7 +6,7 @@
 > Правило (L13): TODO с материализирала се щета получава `❗ ESCALATED 🔥` tag + deadline компресия до `next /wake`.
 > Правило (L14): ESCALATED TODO остане unactioned ≥1 ден И owner е активен в activity.log → премества се в `🕊 Acknowledged-deferred`. Daily re-escalation спира. Връща се в ESCALATED само при ново fire-ване на pain.
 
-_Last updated: 2026-05-24 EOD loop_
+_Last updated: 2026-05-25 EOD loop_
 
 ## 🔥 ESCALATED — pain materialized
 
@@ -31,7 +31,9 @@ _(празно — L9 trio преместено в Acknowledged-deferred per L14
 
 ## Closed
 
-- **L1** — stale Server Action "x" → CLOSED 2026-05-22, expected residual (re-validated 2026-05-24: 6 errors @ ~4h cadence = бот-retry, не user traffic).
+- **L1** — stale Server Action "x" → CLOSED 2026-05-22, expected residual.
+  - Re-sampled 2026-05-24: 6 errors @ ~4h cadence; claimed = бот-retry.
+  - **Re-sampled 2026-05-25 (per L16): 13 errors @ ~1.7h avg, с post-restart burst (brain-dashboard рестарт 17:20 → 5 errors за 5h после; един носи нов hash `b454eec0…`). Diagnostic „бот scanners" superseded by „real browser tabs със cached references, удрящи post-redeploy". Closure stands (0 user pain, 0 debt), но root cause = unfinished L1 migration (някои dashboard forms still using Server Actions). No-fix per L14/L15 (owner active on revenue work). Re-sample trigger: ако volume &gt;25/ден ИЛИ user complaint → reopen.**
 - **L7** — BRAIN*.md sacred-dir cleanup → CLOSED 2026-05-20.
 - **L10(a)** — health-of-routines pager → отменено (L11b, false-positive генератор).
 - **L12 hypothesis** ("daytime сесия не съществува") — REFUTED 2026-05-24 (виж L15). L12a правилото за real owner остава валидно, но по различна причина (липса на incentive, не липса на сесия).
