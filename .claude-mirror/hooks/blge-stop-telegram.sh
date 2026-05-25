@@ -20,7 +20,7 @@ event=$(timeout 2 cat 2>/dev/null || echo '{}')
 
 # Quick exit conditions
 [ -f /root/projects/blge/.no-auto-tg ] && exit 0
-[[ "$PWD" != *"/projects/blge"* ]] && exit 0
+[[ "$PWD" != *"/root/projects/"* ]] && exit 0
 
 # Need jq to parse JSON; skip silently if not installed
 command -v jq >/dev/null || exit 0
