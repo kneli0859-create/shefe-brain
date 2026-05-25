@@ -343,3 +343,32 @@ Truth audit днес опровергава това: `activity.log[2026-05-24]`
 
 ---
 
+## 2026-05-25 — End-of-day Learning Loop
+
+### L16. Closed-as-residual ≠ frozen diagnostic — re-sample, не претендирай
+
+**What:** L12 (2026-05-22) затвори L1 (Server Action "x" residual) с claim „6 errors днес @ ~4h cadence = бот-retry pattern". L14 (2026-05-24) re-валидира closure и потвърди „6 errors @ ~4h cadence = бот". Днешен EOD audit показва **13 errors @ ~1.7h average cadence**, с post-restart burst (brain-dashboard PM2 рестарт 17:20:15 → 5 errors за 5h после, докато pre-restart baseline беше 1 за 4-6h). Един от тях носи пълен SHA hash `b454eec02521b5df208d5e2ae1e51d10d55472be` — нов post-restart action ID който вече е stale 5h по-късно. Това НЕ е бот-pattern (бот-ове не познават post-restart action IDs); това са **реални browser tabs** със cached references, удрящи dashboard-а след redeploy. Точно L1 original failure mode, който L12/L14 mis-classified като „бот".
+
+Closure-ът сам по себе си остава валиден: 13 errors/ден без user complaint = no debt. Но diagnostic-ът („бот scanners") беше грешен, и това loop-ът щеше да продължи да повтаря в всеки EOD audit неопределено, защото L12 заби посочваше „closed-as-residual" без re-validation criteria.
+
+**Why it matters:** „Closed" в lessons.md се чете от мен (бъдещ Claude) като ground truth. Ако diagnostic-ът е грешен но closure-ът „enforces" го (= спира трекинг), всеки бъдещ similar pattern се mis-classifies автоматично. Това е bias amplification: грешна priors → грешна clas­sification → reinforcing pattern. Maturity = closure-ите носят **re-sample triggers**, не frozen claims.
+
+Конкретно за L1: post-restart burst означава brain-dashboard `data:*` форми не са мигрирани към `/api/` route handlers. L1 original rule remains valid но enforcement-ът е incomplete. Това НЕ е code-TODO днес (L14/L15 предполагат no-fix без user pain), а e diagnostic correction.
+
+**Rule (epistemic, EOD self-enforceable — нова infra не нужна):**
+  - **(a) Closure entry формат:** „Closed YYYY-MM-DD as &lt;reason&gt; based on sample: &lt;count/cadence/source&gt;. Re-sample trigger: &lt;condition&gt;." Без re-sample trigger → closure е претенция, не verdict.
+  - **(b) EOD loop re-counts closed-as-residual items** когато появят се в днешните логове (pm2, error logs, health-issues). Ако volume или cadence се разминава &gt;50% от closure baseline → не reopen-ва debt (no user pain → no debt), а **обновява diagnostic line** в lessons.md със следната bullet форма: „Re-sampled YYYY-MM-DD: &lt;new count/cadence&gt;. Original „&lt;old diagnosis&gt;" superseded by „&lt;new diagnosis&gt;"."
+  - **(c) Reopen debt само при user-pain confirm.** Drift сам по себе си не променя priority — само diagnostic accuracy. Owner-deferral (L14) остава, защото няма ново pain event.
+
+**Enforcement този loop:** L1 closure bullet в `OPEN-TODOS.md` се обновява с днешните numbers + corrected diagnostic. Не reopen-ва debt. Не променя CLAUDE.md status.
+
+### Audit summary 2026-05-25
+
+- **Git activity:** `/root/brain` — 1 auto-update commit (17:20). `/root/svd-clean-pro` — 0 commits. `/root/projects/bgpomosht` — 14 commits (pricing 4-tier model, country awareness × 12, V1 SEO migration, .gitignore hardening). `/root/projects/blge` — 3 commits (GSC verification, redeploy trigger, **freeze**). **Daytime work observed (per L15b): project=bgpomosht, ops=~50 today, project=blge, ops=12 yesterday + freeze today.**
+- **PM2:** All 3 services online. brain-dashboard рестарт today (24 total). svd-clean-app/demo 8 дни uptime, stable.
+- **Errors/health:** `logs/errors/` empty (8 дни, L12c phantom remains). `health-issues.log` — 0 нови records днес (последен 2026-05-23). L9 trio остава в `🕊 Acknowledged-deferred`, не re-escalated.
+- **Server Action "x" residual:** 13 events днес vs L12-claimed 6 — diagnostic updated per L16 above.
+- **Pivot signal:** `/root/projects/blge/FROZEN.md` създаден днес (17:05) — explicit 2-week freeze, pivot to bgpomosht.eu monetization. Per L15(b), brief focus shift-ва — blge не е „pending work", а „observe mode".
+
+---
+
