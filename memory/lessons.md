@@ -372,3 +372,35 @@ Closure-ът сам по себе си остава валиден: 13 errors/д
 
 ---
 
+## 2026-05-26 — End-of-day Learning Loop
+
+### L17. Constitution-reality drift — флагвай, не редактирай нощем
+
+**What:** `/root/brain/CLAUDE.md` „Current Focus (May 2026)" изброява „SVD Clean Pro launch + Brain v2 bootstrap" като двата активни приоритета и „Active Projects" listing-ът изброява само тях. Truth audit на git log + activity.log днес показва: `/root/svd-clean-pro` — **0 commits 2 поредни дни** (25 и 26 май, последен commit `0fcb2b1` 2026-05-24); `/root/brain` — **0 manual commits** (само auto-update 13:00). Същевременно `/root/projects/bgpomosht` — **20 commits днес** (Sync.so lip-sync × 4, ElevenLabs Antoni voice samples, Kindergeld tutorial video v4/v5, Resend noreply sender + welcome email + RFC 8058 one-click unsubscribe + DMARC, hamburger overlay menu, always-visible mobile quick-pills strip, mobile battery/auto-dim fix, pricing pivot VIP €99→€149, dead-CSS cleanup + WebP + canonical + preconnect). Това е **третия пореден ден** доминиран от bgpomosht (per L15(b) audit вчера: 14 commits + ~50 ops).
+
+CLAUDE.md е застарял от 2-3 дни — Шефе rationally pivot-на към bgpomosht.eu revenue work след blge freeze (L15 вчера), но Constitution-ът все още signal-ва SVD като Current Focus #1. Future Claude (нова сесия) ще чете CLAUDE.md като ground truth и ще се ориентира към грешен project. Това не е грешка на Шефе (priorities винаги се местят); това е missing maintenance loop за Constitution-а.
+
+**Why it matters:** L11b забранява night-edits на unattended deploy скриптове („daytime сесия с review"). CLAUDE.md не е script, но е **shared decision artifact** — auto-editing му нощем рискува: (i) грешен parse на activity drift (1-2 дни може да е temporary excursion, не pivot); (ii) изтриване на declared strategic intent без owner consent; (iii) cycle „loop поправя → Шефе сутрин update-ва обратно". Same energy като auto-pager false-positive cry-wolf (L9) и blind night-edit prohibition (L11b).
+
+Правилен подход: detect-only. Loop-ът observe-ва drift и **flag-ва в morning brief**, не auto-update-ва. Шефе има 5 секунди да каже „да, update Constitution" или „не, sprint moment, ignore". Опазва owner autonomy (L14 spirit) и избягва blind night-edit (L11b spirit).
+
+**Rule (epistemic + behavioral, EOD self-enforceable — нова infra не нужна):**
+  - **(a) Drift detection trigger:** ≥3 поредни EOD loop-а със zero commits към някой declared Current Focus project И ≥10 commits/ден към non-listed project в `/root/projects/`. Single-day excursion (празник, sick day, weekend) не активира.
+  - **(b) Flag-only emission:** EOD loop добавя ред в morning brief: „🔍 FOCUS DRIFT (N дни): Constitution lists X. Reality: 0 commits към X, Y commits към Z. Update CLAUDE.md или ack as temporary sprint?" Без CLAUDE.md edit от loop-а.
+  - **(c) Resolution paths:** Шефе може да resolve чрез (i) explicit edit на CLAUDE.md Current Focus + Active Projects sections (truth alignment), (ii) явно „ack drift" в OPEN-TODOS.md `🕊 Acknowledged-drift` ред (бъдеща секция), (iii) ignore (next EOD loop пак ще flag-не до resolution).
+  - **(d) Sacred-file edit само daytime + owner-driven.** CLAUDE.md edit-ове от Claude само в session window с explicit Шефе ask. L11b spirit explicitly extended към CLAUDE.md (Constitution = sacred shared artifact).
+  - **(e) Scope limited.** Drift signal се прилага само за „Current Focus" + „Active Projects" sections. „Brain reference" paths, „Forbidden Patterns", „Permission Mode" и др. структурни секции не са drift target — те са canonical structural docs, не activity-mirrored state.
+
+**Enforcement (този loop):** Не правя CLAUDE.md edit на Current Focus. Само append-вам L17 active rule в `Active rules (2026-05-26 Learning Loop)` секцията на `/root/brain/CLAUDE.md` (instructional infra) и добавям drift observation в audit summary долу + OPEN-TODOS „Под review" ред. Morning brief flag се появява утре при `/wake` ако генераторът чете lessons.md latest L17.
+
+### Audit summary 2026-05-26
+
+- **Git activity:** `/root/brain` — 1 auto-update commit (13:00). `/root/svd-clean-pro` — **0 commits** (последен 0fcb2b1 на 2026-05-24, 2 дни без работа). `/root/projects/bgpomosht` — **20 commits** (виж L17 по-горе за breakdown). **Daytime work observed (per L15b): project=bgpomosht, activity.log ops 100+, focus = video marketing production + production email compliance + mobile UX**.
+- **PM2:** All 3 services online. brain-dashboard 10h uptime (рестарт 13:00, +0 unplanned since yesterday — total 26). svd-clean-app/demo 17h uptime, stable.
+- **Errors/health:** `logs/errors/` empty (**9 дни** without entry — phantom remains per L12c). `health-issues.log` — 0 нови records (последен 2026-05-23, **3 дни clean** since L13 incident). L9 trio остава в `🕊 Acknowledged-deferred`, не re-escalated (no new pain).
+- **Server Action „x" residual (L16 re-sample protocol):** brain-dashboard 13 events днес (= вчерашния baseline, ~1.7h cadence, hashes mostly „x" literal + 1 real `cae2b11a...`); svd-clean-app 2 events (real hashes `c20f5768...`, `dc7716a7...`); svd-clean-demo 2 events (real hashes `41e2ae34...`, `f1c71b99...`). **Total 17/day across 3 services.** L16 trigger >25/day **не е crossed**. Closure stands. Diagnostic „post-redeploy cached browser references" непроменен — днешните данни consistent с L16 hypothesis.
+- **Focus drift signal (per L17 new):** SVD Clean Pro = 0 commits 2 поредни дни (25-26 май); Brain = 0 manual commits. bgpomosht.eu доминира **3 поредни дни** (L15 вчера: 14 commits + L16 audit + днес 20 commits). **Drift threshold met** (3+ days, ≥10 commits/day to non-listed project). Flag за утрешен morning brief: „🔍 FOCUS DRIFT (3 дни): Constitution lists SVD + Brain. Reality: 0+0 commits към тях, 20 commits към bgpomosht.eu (revenue work). Update CLAUDE.md или ack as sprint?"
+- **Resend/Stripe/AGB status (CLAUDE.md Current Focus #4):** Resend production-grade integration **done** на bgpomosht (noreply@bgpomosht.eu + DMARC + RFC 8058 one-click unsubscribe, commits 6e046c6/93f3d16/1366f8c). Stripe — без movement. AGB — без movement. Този item-ът на Current Focus е partial-stale: Resend done на bgpomosht.eu instead of SVD.
+
+---
+
