@@ -95,6 +95,11 @@ When a mistake happens:
 - **No extrapolation от EOD window.** Преди да declared „owner никога не прави X" → `tail -100 /root/.claude/logs/activity.log` truth audit. EOD loop вижда само нощно git log, не цял ден activity. L12 hypothesis („daytime сесия не съществува") беше refuted днес от 7h наблюдавана работа на `/root/projects/blge`. Виж `memory/lessons.md` L15.
 - **Opportunity work supersedes rules-debt.** Когато activity.log показва ≥10 file ops в active project dir (revenue work) → EOD report-ът отбелязва „daytime work observed: project=X" и НЕ миксва rules-debt urgency с brief-а. Rules-debt в собствена section. Bundle hint, не coercion. Виж `memory/lessons.md` L15(b-c).
 
+### Active rules (2026-05-26 Learning Loop)
+
+- **Constitution-reality drift — flag, не auto-edit.** Когато ≥3 поредни EOD loop-а покажат zero commits към declared Current Focus project И ≥10 commits/ден към non-listed project в `/root/projects/` → EOD loop добавя 1-ред drift flag в morning brief (`🔍 FOCUS DRIFT (N дни): ...`), **без CLAUDE.md edit от loop-а**. Resolution е Шефе choice: edit Current Focus + Active Projects sections, или явен „ack as sprint". L11b night-edit prohibition extended към CLAUDE.md (sacred shared decision artifact). Scope: само „Current Focus" + „Active Projects" sections. Виж `memory/lessons.md` L17.
+- **2026-05-26 drift flag (live):** `/root/svd-clean-pro` 0 commits 2 дни (25-26 май, последен `0fcb2b1` 2026-05-24); `/root/brain` 0 manual commits. `/root/projects/bgpomosht` 20 commits днес + 14 вчера = 3 поредни дни. Constitution Current Focus #1 (SVD Clean Pro) и #2 (Brain v2 bootstrap) са stale; Current Focus #4 (Resend) — done но на bgpomosht.eu, не SVD. Очаква се Шефе resolution на next /wake.
+
 ## Permission Mode
 
 - Default: `acceptEdits`
