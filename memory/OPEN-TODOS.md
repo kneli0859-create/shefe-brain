@@ -6,7 +6,7 @@
 > Правило (L13): TODO с материализирала се щета получава `❗ ESCALATED 🔥` tag + deadline компресия до `next /wake`.
 > Правило (L14): ESCALATED TODO остане unactioned ≥1 ден И owner е активен в activity.log → премества се в `🕊 Acknowledged-deferred`. Daily re-escalation спира. Връща се в ESCALATED само при ново fire-ване на pain.
 
-_Last updated: 2026-05-26 EOD loop_
+_Last updated: 2026-05-27 EOD loop_
 
 ## 🔥 ESCALATED — pain materialized
 
@@ -26,9 +26,9 @@ _(празно — L9 trio преместено в Acknowledged-deferred per L14
 
 | TODO | Lesson | Статус |
 |------|--------|--------|
-| `error-funnel.sh` | L3 | `logs/errors/` празна **9 дни** → phantom (L12c re-validated 2026-05-26). Шефе: kill или keep? |
+| `error-funnel.sh` | L3 | `logs/errors/` празна **10 дни** → phantom (L12c re-validated 2026-05-27). Шефе: kill или keep? |
 | `rules-debt-check.sh` | L6 | Заменено de facto от този файл — затвори L6 ако `OPEN-TODOS.md` се поддържа. |
-| **Constitution Current Focus refresh** | L17 (new) | Drift flag triggered 2026-05-26: SVD 0 commits 2 дни, Brain 0 manual, bgpomosht 3 поредни дни доминира (20+14 commits). EOD loop НЕ auto-edit-ва CLAUDE.md (L11b spirit). Шефе: edit `Current Focus` + `Active Projects` секциите или `ack as sprint`? |
+| **Constitution Current Focus refresh** | L17 | Drift flag **day 4** (2026-05-27): SVD 0 commits **3 поредни дни** (25-26-27, последен `0fcb2b1` 2026-05-24), Brain 0 manual, bgpomosht **4 поредни дни** доминира (14+14+20+30+ = 78+ commits cumulative). EOD loop продължава да flag-ва (L17b detect-only). Шефе: edit `Current Focus` + `Active Projects` секциите или `ack as sprint`? |
 
 ## Closed
 
@@ -36,6 +36,7 @@ _(празно — L9 trio преместено в Acknowledged-deferred per L14
   - Re-sampled 2026-05-24: 6 errors @ ~4h cadence; claimed = бот-retry.
   - **Re-sampled 2026-05-25 (per L16): 13 errors @ ~1.7h avg, с post-restart burst (brain-dashboard рестарт 17:20 → 5 errors за 5h после; един носи нов hash `b454eec0…`). Diagnostic „бот scanners" superseded by „real browser tabs със cached references, удрящи post-redeploy". Closure stands (0 user pain, 0 debt), но root cause = unfinished L1 migration (някои dashboard forms still using Server Actions). No-fix per L14/L15 (owner active on revenue work). Re-sample trigger: ако volume &gt;25/ден ИЛИ user complaint → reopen.**
   - **Re-sampled 2026-05-26: brain-dashboard 13 events (= вчерашния baseline, ~1.7h cadence; hashes mostly „x" literal + 1 real `cae2b11a…`), svd-clean-app 2 events (real hashes `c20f5768…`, `dc7716a7…`), svd-clean-demo 2 events (real hashes `41e2ae34…`, `f1c71b99…`). Total **17/day across 3 services**. L16 trigger (&gt;25/day) НЕ е crossed. Closure stands. Diagnostic от L16 непроменен.**
+  - **Re-sampled 2026-05-27: svd-clean-app **0 events** (first zero-day since closure; trend 2→2→0), svd-clean-demo **0 events** (first zero-day; trend 2→2→0), brain-dashboard **11 events, ВСИЧКИ „x" literal hash, 0 real hashes**. Total **11/day across 3 services** — clearly under L16 trigger. activity.log днес показва 0 ops към `brain-dashboard/` пътеки (всички в `bgpomosht/`) → no redeploy → no post-redeploy real-hash burst → only bot „x" literal. **L16 hypothesis получи natural-experiment confirm — first clean isolation на bot-pattern във данните. Diagnostic confidence ↑. Closure stands.**
 - **L7** — BRAIN*.md sacred-dir cleanup → CLOSED 2026-05-20.
 - **L10(a)** — health-of-routines pager → отменено (L11b, false-positive генератор).
 - **L12 hypothesis** ("daytime сесия не съществува") — REFUTED 2026-05-24 (виж L15). L12a правилото за real owner остава валидно, но по различна причина (липса на incentive, не липса на сесия).
