@@ -404,3 +404,27 @@ CLAUDE.md е застарял от 2-3 дни — Шефе rationally pivot-на
 
 ---
 
+## 2026-05-27 — End-of-day Learning Loop
+
+### Audit summary 2026-05-27
+
+**Verdict:** Quiet infra day; revenue-loud project day; no new rule. Day 4 of L17 drift (deepening). L16 hypothesis получи първи **natural-experiment confirm** (no dashboard redeploy → Server Action errors всички „x" literal, нула post-redeploy real hashes).
+
+- **Git activity:** `/root/brain` — 0 manual commits (last `2dc90ed` от вчерашния EOD loop). `/root/svd-clean-pro` — **0 commits, 3 поредни дни** (25, 26, 27 май; последен `0fcb2b1` 2026-05-24). `/root/projects/bgpomosht` — **30+ commits** (multi-engine SEO automation suite, GSC daily orchestrator, Indexing/PSI/Trends API modules, IndexNow за Bing/Yandex, hreflang + multi-country schema, EU 16-markets expansion +Greece/Cyprus/Ireland/Romania/Czechia, content factory + post-scheduler за FB/TikTok/Reddit/LinkedIn/WhatsApp, 4 GSC-data-driven blog posts auto-indexed, mobile LCP perf fix с `<picture>` + responsive hero + conditional Lenis, beta sticky banner + AGB §4 free-tier disclosure, TMG/DSGVO compliant Impressum + Datenschutz + new AGB, premium welcome email v2 с animated GIF, video v7 Antoni eleven_v3 stable). **Day 4 of bgpomosht dominance.** Daytime work observed (per L15b): project=bgpomosht, activity.log ops ~50+ today, focus = SEO automation infrastructure + DACH-EU expansion + content distribution machine + legal compliance.
+- **PM2:** Health-check 72/72 probes ✅ today (svd-clean-app, demo, brain-dashboard, всички 200). 0 failures.
+- **Errors/health:** `logs/errors/` empty (**10 дни** without entry — L12c phantom persists, под L6 review остава). `health-issues.log` — 0 нови records (последен `2026-05-23`, **4 дни clean** since L13 incident). L9 trio остава в `🕊 Acknowledged-deferred`, не re-escalated (no new pain — 5th consecutive day deferred state stays correct per L14).
+- **Server Action „x" residual (L16 re-sample protocol, day 3 of post-L16 trend):**
+  - svd-clean-app: **0 events** (vs 2 yesterday, 2 на 25-ти) — **first zero-day since closure**. Trend: 2→2→0.
+  - svd-clean-demo: **0 events** (vs 2 yesterday) — also first zero-day. Trend: 2→2→0.
+  - brain-dashboard: **11 events, ВСИЧКИ „x" literal hash, 0 real hashes** (vs 13 events 25-ти + 26-ти с по 1 real hash). Total 11/day across 3 services. L16 trigger >25/day clearly not crossed; trend сваля.
+  - **L16 hypothesis natural-experiment confirm:** activity.log днес 0 ops на `brain-dashboard/` пътеки (всички writes са в `bgpomosht/`). PM2 dashboard uptime unchanged today. **No dashboard redeploy → no post-redeploy real-hash burst → only bot „x" literal pattern.** Това е изолиран test, който L16 hypothesis предсказваше точно — first time виждам clean separation в данните. Diagnostic confidence ↑. Закриване остава, без debt change.
+- **Focus drift signal (L17 day 4):** SVD Clean Pro = 0 commits **3 поредни дни** (25-26-27 май); Brain = 0 manual commits 1 ден. bgpomosht.eu доминира **4 поредни дни** (24: 14 commits → 25: 14 → 26: 20 → 27: 30+). **Drift threshold L17a clearly met** (3+ days, ≥10 commits/day); персистира unresolved 24h след първи fire. Flag за утрешен morning brief: „🔍 FOCUS DRIFT (4 дни): Constitution lists SVD + Brain. Reality: 0+0 commits към тях за 3 дни, 64+ commits към bgpomosht.eu (revenue work, DACH SEO machine + EU expansion). Update CLAUDE.md Current Focus или ack as sprint?". L17b detect-only stance maintained — никакъв CLAUDE.md edit от loop-а. L11b spirit respected.
+- **Pain-materialization watch (L13/L14):** 0 нови pain events за L9 trio (cron/curl/watchdog) за 4 пореден ден. 0 нови pain events за L17 drift (никакво future-Claude misorientation observed). 0 нови pain events за L1 residual (zero on SVD, fading on dashboard). **No-pain → no-TODO (L12c) holds.**
+- **What broke today:** Нищо. Truth audit clean.
+- **What surprised us:** SVD app/demo Server Action errors паднаха до **нула** за първи път. Plus L16 hypothesis получи clean natural-experiment confirm — добра data hygiene, рядко се случва.
+- **New rule needed:** **Не.** No new pain, no new generalization warranted. Existing L1-L17 rules cover днешните observations напълно.
+
+**Enforcement (този loop):** Не правя rule edits в `CLAUDE.md`. Не правя code-TODO добавки в `OPEN-TODOS.md` (per L12c, no-pain → no-TODO). Update-вам само (a) L1 re-sample bullet в `OPEN-TODOS.md` Closed секцията с днешните numbers + L16 natural-experiment note, (b) L17 drift counter (3 дни→4 дни). Това.
+
+---
+
