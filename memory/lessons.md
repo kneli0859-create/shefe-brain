@@ -428,3 +428,27 @@ CLAUDE.md е застарял от 2-3 дни — Шефе rationally pivot-на
 
 ---
 
+
+## 2026-05-28 — End-of-day Learning Loop
+
+### Audit summary 2026-05-28
+
+**Verdict:** Quiet infra day; revenue-loud project day; no new rule. Day 5 of L17 drift — и **NEW signal**: появи се втори non-listed project `/root/projects/reinigung-saas` (Фаза 0, 22:24), което е тематично наследникът на Current Focus #1 (немски cleaning SaaS). Drift вече не е двусмислен.
+
+- **Git activity:** `/root/brain` — 1 auto-update commit (`4e6a56f`, 22:00). `/root/svd-clean-pro` — **0 commits, 4 поредни дни** (25-26-27-28 май; последен `0fcb2b1` 2026-05-24). `/root/projects/bgpomosht` — **14 commits** (handoff doc за Opus 4.7→4.8 model switch, UX Pro Max universal glass upgrade, VIP desktop 2-col split, premium pricing typography, VIP animated effects — gold shimmer/sparkles/floating crown, services section cleanup). **Day 5 of bgpomosht dominance.** `/root/projects/reinigung-saas` — **1 commit (NEW project)**: „Фаза 0: research немски цени за почистване + skills декларация". Daytime work observed (per L15b): primary=bgpomosht (premium UX/pricing redesign), secondary=reinigung-saas bootstrap.
+- **PM2:** Всички 3 services online. svd-clean-app/demo 2D uptime, stable (15 restarts cumulative). brain-dashboard 60m uptime, **27 cumulative restarts** (+1 vs вчера — likely auto-update/reload churn, not a pain event; no health-issues entry).
+- **Errors/health:** `logs/errors/` empty (**11 дни** without entry — L12c phantom persists, под L6 review). `health-issues.log` — 0 нови records (последен `2026-05-23`, **5 дни clean** since L13 incident). L9 trio остава в `🕊 Acknowledged-deferred`, не re-escalated (6th consecutive day deferred — correct per L14, 0 нови pain).
+- **Server Action „x" residual (L16 re-sample protocol, day 4 of post-L16 trend):**
+  - svd-clean-app: **0 events** (trend 2→2→0→0) — second consecutive zero-day.
+  - svd-clean-demo: **0 events** (trend 2→2→0→0) — second consecutive zero-day.
+  - brain-dashboard: **6 events, ВСИЧКИ „x" literal hash, 0 real hashes** (vs 11 вчера, 13 на 25/26). Total **6/day across 3 services — lowest since closure.** L16 trigger >25/day far from crossed; trend continues down.
+  - **L16 hypothesis stays confirmed:** no dashboard redeploy днес (activity ops в bgpomosht/reinigung-saas, не brain-dashboard/) → само bot „x" literal, нула real post-redeploy hashes. Consistent с natural-experiment от вчера. Closure stands, без debt change.
+- **Focus drift signal (L17 day 5 — sharpened):** SVD Clean Pro = 0 commits **4 поредни дни**; Brain = 0 manual commits. bgpomosht.eu доминира **5 поредни дни** (24:14 → 25:14 → 26:20 → 27:30+ → 28:14 = ~92 cumulative). **NEW:** `reinigung-saas` стартира днес — нов немски cleaning-SaaS build в `/root/projects/`, точно домейнът на stale Current Focus #1. Това превръща drift-а от „bgpomosht sprint?" в по-ясна картина: SVD Clean Pro изглежда superseded (вероятно от reinigung-saas като rebuild/successor). L17b detect-only stance maintained — **никакъв CLAUDE.md edit от loop-а** (L11b night-prohibition). Flag за утрешен morning brief: „🔍 FOCUS DRIFT (5 дни): SVD Clean Pro 0 commits 4 дни + появи се НОВ cleaning SaaS `reinigung-saas`. Current Focus #1 изглежда заменен. Update CLAUDE.md (Current Focus + Active Projects) или ack as sprint?".
+- **Pain-materialization watch (L13/L14):** 0 нови pain events за L9 trio (5+ дни), L17 drift (никакво future-Claude misorientation observed), L1 residual (fading). **No-pain → no-TODO (L12c) holds.**
+- **What broke today:** Нищо. Truth audit clean.
+- **What surprised us:** Нов проект `reinigung-saas` — Шефе започва свеж немски cleaning SaaS, което implicitly адресира stale-ия SVD Current Focus. Drift narrative-ът придоби resolution direction (rebuild, не abandonment на домейна).
+- **New rule needed:** **Не.** No new pain, no new generalization. L1-L17 покриват напълно. Новият project е data update към L17 drift flag, не нов правилен клас.
+
+**Enforcement (този loop):** Без rule edits в `CLAUDE.md` (L11b/L17b). Без нови code-TODO в `OPEN-TODOS.md` (L12c). Update само: (a) L1 re-sample bullet в `OPEN-TODOS.md` Closed секцията с днешните numbers (6/day, lowest), (b) L17 drift counter (day 4→5) + reinigung-saas new signal. Това.
+
+---
