@@ -49,6 +49,10 @@
         "HOSTINGER_API_TOKEN": "uWpKEp10seqRe1DtwIY8v5P3HFIoC1YUKUw1a0n24a9c5292",
         "DEBUG": "false"
       }
+    },
+    "inwx": {
+      "command": "node",
+      "args": ["/root/projects/inwx-mcp/dist/index.js"]
     }
   }
 }
