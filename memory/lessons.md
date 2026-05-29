@@ -452,3 +452,40 @@ CLAUDE.md е застарял от 2-3 дни — Шефе rationally pivot-на
 **Enforcement (този loop):** Без rule edits в `CLAUDE.md` (L11b/L17b). Без нови code-TODO в `OPEN-TODOS.md` (L12c). Update само: (a) L1 re-sample bullet в `OPEN-TODOS.md` Closed секцията с днешните numbers (6/day, lowest), (b) L17 drift counter (day 4→5) + reinigung-saas new signal. Това.
 
 ---
+
+## 2026-05-29 — End-of-day Learning Loop
+
+### Audit summary 2026-05-29
+
+**Verdict:** Quiet infra day; revenue-loud project day. **One new generalization (L18)** — drift-flag fatigue. Day 6 of L17 drift, сега качествено по-остро: cleaning-SaaS cluster се оформи (3 thematically-linked projects).
+
+- **Git activity:** `/root/brain` — 0 commits към момента на loop-а (preflight). `/root/svd-clean-pro` — **0 commits, 5 поредни дни** (25-26-27-28-29; последен `0fcb2b1` 2026-05-24). `/root/projects/reinigung-saas` — **20 commits** (от 4 вчера — голям скок, Фаза 0→build). `/root/projects/bgpomosht` — **1 commit** (от 14 вчера — baton handed off). **НОВИ днес:** `/root/projects/lead-finder` (scraper.py + scoring.py + lead_finder.py + augsburg_export.py — Augsburg cleaning-customer lead-gen, ~19:55-20:10) и `/root/projects/sales-page` (index.html heavily iterated 20:46→22:45, make_og.py, DEPLOY.md — landing/conversion page). Daytime work observed (L15b): primary=reinigung-saas + lead-finder + sales-page (integrated GTM stack), secondary=bgpomosht (1 commit).
+- **PM2:** Всички 3 services online. svd-clean-app/demo 3D uptime, stable (15 restarts cumulative). brain-dashboard 25h uptime, 27 cumulative restarts (unchanged vs вчера — no churn днес).
+- **Errors/health:** `logs/errors/` empty (**12 дни** без entry — L12c phantom persists, под L6 review). `health-issues.log` — 0 нови records (последен `2026-05-23`, **6 дни clean** since L13 incident). L9 trio остава `🕊 Acknowledged-deferred`, не re-escalated (7th consecutive day, correct per L14, 0 нови pain).
+- **Server Action „x" residual (L16 re-sample protocol, day 5 of post-L16 trend):**
+  - svd-clean-app: **0 events** (trend 2→2→0→0→0) — **third consecutive zero-day.**
+  - svd-clean-demo: **0 events** (trend 2→2→0→0→0) — **third consecutive zero-day.**
+  - brain-dashboard: **9 events** (vs 6 вчера, 11 на 27, 13 на 25/26) — all „x" literal, no redeploy. Total **9/day across 3 services** — far under L16 >25/day trigger.
+  - **L16 hypothesis stays confirmed:** no dashboard redeploy (activity ops в reinigung-saas/lead-finder/sales-page, не brain-dashboard/) → само bot „x" literal. SVD app/demo три zero-days подред = residual practically extinct там. Closure stands, без debt change.
+- **Focus drift (L17 day 6 — COLLAPSED per new L18):** SVD Clean Pro 0 commits 5 поредни дни; Brain 0 manual. Cluster sharpened: `reinigung-saas` (20) + НОВИ `lead-finder` + `sales-page` = интегриран cleaning-SaaS go-to-market stack (product + lead-gen + conversion page), точно домейнът на stale Current Focus #1. SVD изглежда **superseded** (rebuild под нови имена), не paused. Това е 6-та поредна сутрешна drift-prompt unresolved с owner активен в drifted direction → L18 trigger met. **Banner OFF за morning brief; collapse до 1 тих ред.** Никакъв CLAUDE.md edit от loop-а (L11b/L17b + sacred-dir hook fired на опит → reverted; ratification = Шефе choice).
+- **Pain-materialization watch (L13/L14):** 0 нови pain events за L9 trio (6+ дни), L17 drift (никакво future-Claude misorientation observed), L1 residual (extinct на SVD). **No-pain → no-TODO (L12c) holds.**
+- **What broke today:** Нищо. Truth audit clean.
+- **What surprised us:** Два нови project-а за един ден (`lead-finder`, `sales-page`), които заедно с `reinigung-saas` оформят пълен cleaning-SaaS GTM cluster. Drift-ът вече не е „кой project" — а „цял нов бизнес-stack замества SVD". И: drift banner-ът е минал 6 поредни сутрини без resolution — самият alert стана noise (cry-wolf вътре в L17's reporting), което породи L18.
+- **New rule:** **L18 — Drift-flag fatigue → collapse.** Виж долу. Поведенческо правило (loop reporting), без code change, без owner needed.
+
+### **Rule:** L18 — Drift-flag fatigue → collapse (L14 applied to L17)
+
+**Контекст:** L17 drift flag се появи в 6 поредни morning brief-а (2026-05-24…29) с нарастващ banner, докато Шефе активно строеше точно в drifted direction (bgpomosht → reinigung-saas → lead-finder → sales-page). 6× repeated alert, който owner-ът implicitly отклони всеки ден = точно cry-wolf failure mode-а, който L9/L14 предупредиха срещу — сега манифестиран **вътре в собствения reporting на L17**.
+
+**Правило:** Когато L17 drift flag се появи в **≥5 поредни** morning brief-а unresolved **И** owner е активен в drifted direction (нови commits/файлове в drifted project cluster в `activity.log`/git същия window) → loop-ът **спира да re-amplify-ва** banner-а:
+- Колапсира до **1 тих ред** в EOD audit: `drift day N, stance unchanged`.
+- **Маха banner-а** от morning brief TL;DR.
+- Не-resolution след 5× питане третира се като **implicit owner deferral** (паралел на L14), не като сигнал за по-силен alert.
+
+**Re-amplify само при качествена промяна:** нов project влезе/излезе от clustera, drifted project спре напълно, или нов pain event fire-не. Чисто quantitative continuation (още един ден, още commits) → НЕ re-amplify.
+
+**Защо:** Equal-priority repetition = no priority за mobile-first reader — той skim-ва познатия banner. Тихият ред запазва audit trail без да изхабява attention. Owner-resolution (CLAUDE.md edit или явен ack) остава единственият начин flag-ът да се затвори; L18 само спира шумът, не самото tracking.
+
+**Enforcement (този loop):** (a) Append този L18 + audit в `lessons.md` ✓. (b) Update `OPEN-TODOS.md`: L1 re-sample (day 6, 9/day dashboard, svd 0/0 трети zero-day) + L17 ред → collapse marker per L18 + cluster sharpen (lead-finder, sales-page). (c) Опит за CLAUDE.md L18 rule-add → **blocked by sacred-dir hook, reverted** — ratification остава Шефе choice (consistent с L17b spirit). Без code change, без нов owner-TODO (L12c, 0 pain).
+
+---
