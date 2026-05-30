@@ -7,7 +7,7 @@
 > Правило (L14): ESCALATED TODO остане unactioned ≥1 ден И owner е активен в activity.log → премества се в `🕊 Acknowledged-deferred`. Daily re-escalation спира. Връща се в ESCALATED само при ново fire-ване на pain.
 > Правило (L18): drift flag в ≥5 поредни morning brief-а unresolved + owner активен в drifted direction → collapse до 1 тих ред, banner OFF. Re-amplify само при качествена промяна.
 
-_Last updated: 2026-05-29 EOD loop_
+_Last updated: 2026-05-30 EOD loop_
 
 ## 🔥 ESCALATED — pain materialized
 
@@ -27,9 +27,9 @@ _(празно — L9 trio преместено в Acknowledged-deferred per L14
 
 | TODO | Lesson | Статус |
 |------|--------|--------|
-| `error-funnel.sh` | L3 | `logs/errors/` празна **10 дни** → phantom (L12c re-validated 2026-05-27). Шефе: kill или keep? |
+| `error-funnel.sh` | L3 | `logs/errors/` празна **13 дни** → phantom (L12c re-validated 2026-05-30). Шефе: kill или keep? |
 | `rules-debt-check.sh` | L6 | Заменено de facto от този файл — затвори L6 ако `OPEN-TODOS.md` се поддържа. |
-| **Constitution Current Focus refresh** | L17 → collapsed L18 | Drift flag **day 6** (2026-05-29) — **🔕 COLLAPSED per L18** (6× unresolved + owner активен в drifted direction → banner OFF, tracking-only). SVD 0 commits **5 поредни дни** (last `0fcb2b1` 2026-05-24), Brain 0 manual. **Cluster sharpened 2026-05-29:** `reinigung-saas` 20 commits (от 4) + НОВИ `lead-finder` (Augsburg lead-scraper) + `sales-page` (landing/conversion) = пълен cleaning-SaaS GTM stack, точно домейнът на stale Current Focus #1. SVD **superseded** (rebuild под нови имена). Resolution остава **само Шефе choice** (CLAUDE.md edit или явен ack) — loop няма да re-amplify докато няма качествена промяна. |
+| **Constitution Current Focus refresh** | L17 → collapsed L18 → **🔔 RE-AMPLIFIED 2026-05-30** | Drift flag **day 7** (2026-05-30). Вчера collapsed per L18; днес **re-amplified per L18 re-amplify clause** — нов project влезе в cluster-а (качествена промяна, не quantitative continuation). **Truth-correction:** SVD main last commit = `94d0206` **2026-05-17** (НЕ `0fcb2b1`/2026-05-24 — вероятно feature branch); SVD main dormant **13 дни**. **Cluster сега = 4 проекта = затворена agency-in-a-box pipeline:** `reinigung-saas` (продукт) + `lead-finder`+`outreach_bot.py` (discovery+outreach) + `sales-page` (conversion) + **НОВ `client-site-factory`** (delivery: `build_client.py` template engine + `reel/` video generator, created 2026-05-30 14:10). Това е оформен немски cleaning-агенция бизнес-модел, който domain-ски **замества** Current Focus #1 (SVD). Re-amplify = surface веднъж в утрешния brief с qualitative note, **НЕ** stronger escalation (L18). Resolution = **само Шефе choice** (Current Focus + Active Projects edit, или явен ack as pivot) — loop няма CLAUDE.md edit (L11b/L17b). |
 
 ## Closed
 
@@ -40,6 +40,7 @@ _(празно — L9 trio преместено в Acknowledged-deferred per L14
   - **Re-sampled 2026-05-27: svd-clean-app **0 events** (first zero-day since closure; trend 2→2→0), svd-clean-demo **0 events** (first zero-day; trend 2→2→0), brain-dashboard **11 events, ВСИЧКИ „x" literal hash, 0 real hashes**. Total **11/day across 3 services** — clearly under L16 trigger. activity.log днес показва 0 ops към `brain-dashboard/` пътеки (всички в `bgpomosht/`) → no redeploy → no post-redeploy real-hash burst → only bot „x" literal. **L16 hypothesis получи natural-experiment confirm — first clean isolation на bot-pattern във данните. Diagnostic confidence ↑. Closure stands.**
   - **Re-sampled 2026-05-28: svd-clean-app **0 events** (2nd consecutive zero-day; trend 2→2→0→0), svd-clean-demo **0 events** (2nd zero-day; trend 2→2→0→0), brain-dashboard **6 events, ВСИЧКИ „x" literal hash, 0 real hashes**. Total **6/day across 3 services — lowest since closure.** No dashboard redeploy (activity в bgpomosht/reinigung-saas) → bot-only „x" literal, consistent с L16. Far under >25/day trigger. Closure stands.**
   - **Re-sampled 2026-05-29: svd-clean-app **0 events** (3rd consecutive zero-day; trend 2→2→0→0→0), svd-clean-demo **0 events** (3rd zero-day; trend 2→2→0→0→0) — residual practically extinct на SVD. brain-dashboard **9 events, all „x" literal, 0 real hashes** (no dashboard redeploy; activity в reinigung-saas/lead-finder/sales-page). Total **9/day across 3 services.** Far under >25/day trigger. L16 confirmed отново. Closure stands.**
+  - **Re-sampled 2026-05-30: svd-clean-app **1 event** (single „x" literal @ 18:01:32; trend 2→2→0→0→0→1, bot noise), svd-clean-demo **0 events** (4th consecutive zero-day), brain-dashboard **0 events** (first dashboard zero-day откакто трекаме; no redeploy, activity в lead-finder/client-site-factory). Total **1/day across 3 services — LOWEST since closure.** Residual practically extinct. L16 confirmed (no dashboard redeploy → near-zero). Closure stands.**
 - **L7** — BRAIN*.md sacred-dir cleanup → CLOSED 2026-05-20.
 - **L10(a)** — health-of-routines pager → отменено (L11b, false-positive генератор).
 - **L12 hypothesis** ("daytime сесия не съществува") — REFUTED 2026-05-24 (виж L15). L12a правилото за real owner остава валидно, но по различна причина (липса на incentive, не липса на сесия).
