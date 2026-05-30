@@ -489,3 +489,27 @@ CLAUDE.md е застарял от 2-3 дни — Шефе rationally pivot-на
 **Enforcement (този loop):** (a) Append този L18 + audit в `lessons.md` ✓. (b) Update `OPEN-TODOS.md`: L1 re-sample (day 6, 9/day dashboard, svd 0/0 трети zero-day) + L17 ред → collapse marker per L18 + cluster sharpen (lead-finder, sales-page). (c) Опит за CLAUDE.md L18 rule-add → **blocked by sacred-dir hook, reverted** — ratification остава Шефе choice (consistent с L17b spirit). Без code change, без нов owner-TODO (L12c, 0 pain).
 
 ---
+
+## 2026-05-30 — End-of-day Learning Loop
+
+### Audit summary 2026-05-30
+
+**Verdict:** Quiet infra day, revenue-loud project day (7-ми пореден). **Без нов rule** — L18's собствен re-amplify clause покрива днешното събитие точно. **Качествена промяна в drift cluster** → L18 re-amplify trigger met (един път, не escalation).
+
+- **Git activity:** `/root/brain` — 0 manual commits (само предстоящ learning commit). `/root/svd-clean-pro` — **0 commits, 6-ти пореден zero-day** (25→30). ⚠️ **Truth correction:** `git -C /root/svd-clean-pro log -1` на main = `94d0206` **2026-05-17** 19:12 (ETAP 13 docs), НЕ `0fcb2b1`/2026-05-24 както по-ранни loop-ове твърдяха (вероятно feature branch, не main). Значи SVD main е dormant **13 дни**, не 6. `/root/projects/sales-page` — 5 commits. `/root/projects/bgpomosht` — 1 commit. **lead-finder** — heavy iteration на `outreach_bot.py` (activity.log 17:00→19:18, ~25 edits) = outreach automation добавена. **НОВ днес:** `/root/projects/client-site-factory` (created 14:10) — productized-agency engine: `build_client.py` (15.6KB template renderer), `template/`, `sites/`, `clients/`, `intake.md`, + `reel/make_transform_reel.py` (before/after video reel generator, написан ~22:08). Daytime work observed (L15b): primary = lead-finder (outreach) + client-site-factory (delivery engine) + sales-page (conversion).
+- **PM2:** 3-те services online, stable. Без churn.
+- **Errors/health:** `logs/errors/` empty (**13 дни** — L12c phantom persists, под L6 review). `health-issues.log` — 0 нови (последен `2026-05-23T18:00`, **7 дни clean** since L13 incident). L9 trio остава `🕊 Acknowledged-deferred` (8-ми пореден ден, correct per L14, 0 нови pain).
+- **Server Action „x" residual (L16 re-sample, day 6 of post-L16 trend):**
+  - svd-clean-app: **1 event** (single „x" literal @ 18:01:32; trend 2→2→0→0→0→1, бот noise).
+  - svd-clean-demo: **0 events** (4-ти пореден zero-day).
+  - brain-dashboard: **0 events** (first dashboard zero-day откакто трекаме — no redeploy, activity в lead-finder/client-site-factory).
+  - **Total 1/day across 3 services — НАЙ-НИСКОТО от closure насам.** Far under L16 >25/day trigger. Residual practically extinct. L16 hypothesis confirmed отново (no dashboard redeploy → near-zero). Closure stands.
+- **Focus drift (L17 → L18, day 7 — RE-AMPLIFY, не collapse):** Вчера (day 6) L18 колапсира banner-а до тих ред. Днес **client-site-factory влезе в cluster-а** — точно L18's явен re-amplify trigger („нов project влезе/излезе от clustera"). Cluster-ът сега е **4 проекта** = пълна agency-in-a-box pipeline: `reinigung-saas` (продукт) + `lead-finder`+`outreach_bot` (discovery+outreach) + `sales-page` (conversion) + `client-site-factory` (delivery/fulfillment). Това не е „кой project доминира" — а оформен **бизнес-модел** (немски cleaning lead-gen → outreach → landing → built client site), който domain-ски замества stale Current Focus #1 (SVD Clean Pro). **Re-amplify = surface веднъж в утрешния brief с qualitative note, НЕ stronger escalation** (per L18). Никакъв CLAUDE.md edit от loop-а (L11b/L17b night-prohibition holds; sacred-dir hook fire-на и на lessons.md тази вечер — confirmed още активен). Resolution = само Шефе choice (Current Focus + Active Projects edit, или явен ack as pivot).
+- **Pain-materialization watch (L13/L14):** 0 нови pain events за L9 trio (7+ дни), L17 drift (никакво future-Claude misorientation), L1 residual (extinct). **No-pain → no-TODO (L12c) holds.**
+- **What broke today:** Нищо. Truth audit clean.
+- **What surprised us:** `client-site-factory` — productized client-site fulfillment engine + video-reel generator. Cluster-ът прескочи от „3 thematically-linked projects" към **затворен end-to-end agency revenue pipeline**. Drift-narrative-ът е напълно resolved по посока: SVD не е paused, а **superseded от цял нов GTM business**. И: L18, написан вчера за да заглуши banner-а, fire-на собствения си re-amplify clause днес на първата качествена промяна — правилото работи както е проектирано (тих по default, говори при substance).
+- **New rule needed:** **Не.** No new pain, no new generalization. L18 re-amplify clause покри събитието точно. L1-L18 пълни.
+
+**Enforcement (този loop):** (a) Append този audit в `lessons.md` ✓. (b) Update `OPEN-TODOS.md`: L1 re-sample (day 7, **1/day lowest**, svd-app 1 / demo 0 / dashboard 0) + L17 ред → **re-amplify per L18** (client-site-factory joined → cluster=4, agency pipeline) + truth-correction на SVD last-commit (2026-05-17, не 2026-05-24). (c) **Без** CLAUDE.md edit (L11b/L17b). Без нов owner-TODO (L12c, 0 pain).
+
+---
